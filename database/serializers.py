@@ -58,10 +58,10 @@ class TestSerializer(serializers.ModelSerializer):
     type = serializers.IntegerField(source='movie_id.type')  # 타입
     type_name = TypeChoicesSerializerField()  # 타입
     total_seat = serializers.IntegerField(source='date_id.screen_id.total_seat')  # 총좌석
-    # seat_number = serializers.CharField(source='schedule_time_set.id')
+    seat_number = serializers.CharField(source='schedule_time_seat.seat_number')
     class Meta:
         model = Schedule_time
-        fields = ('cinema', 'screen', 'date', 'start_time', 'movie', 'type', 'type_name', 'total_seat')
+        fields = ('cinema', 'screen', 'date', 'start_time', 'movie', 'type', 'type_name', 'total_seat', 'seat_number')
 
     @swagger_serializer_method(serializer_or_field=serializers.CharField)
     def get_type_name(self, obj):
