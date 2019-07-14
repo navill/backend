@@ -91,7 +91,7 @@ class Schedule_date(models.Model):
 class Schedule_time(models.Model):
     movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="movie_id_schedule", null=True)
     date_id = models.ForeignKey(Schedule_date, on_delete=models.CASCADE, related_name="date_id_schedule", null=True)
-    # seat_count = models.IntegerField()  # 예매된 좌석의 수- Screen의 total_seat와 연산되어져야 한다.
+    seat_count = models.IntegerField(default=0)  # 예매된 좌석의 수- Screen의 total_seat와 연산되어져야 한다.
     # available_seat = models.BooleanField(default=True)  # screen_id.total_seat - seat_count =>매진 여부
     start_time = models.TimeField()  # start_time + movie.running_time = end_time
 
@@ -101,6 +101,9 @@ class Schedule_time(models.Model):
     def show_item_schedule_detail(self):
         return self.screen_id.cinema_id.cinema_name
 
+    def numbering_seat_count(self, length_count_list):
+        self.seat_count = length_count_list
+        self.save()
     # def __str__(self):  # -> string
     #     return f"지점 : {self.date_id.screen_id.cinema_id.cinema_name}(screen:{self.date_id.screen_id.screen_number}), 상영일자: {self.date_id.date}, 시간: {self.start_time}" \
     #         f", 영화 제목: {self.movie_id.title}"
@@ -114,6 +117,8 @@ class Seat(models.Model):
                                          related_name='schedule_time_seat')
     # screen_id = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screen_id_seat', null=True)
     seat_number = models.TextField()
+
+
     # available = models.BooleanField(default=True)  # 예매 될 경우 false
     # git test를 위한 수정사항 입니다.
     # def __str__(self):  # -> string
