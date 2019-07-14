@@ -46,7 +46,7 @@ class Schedule_dateAdmin(admin.ModelAdmin):
 
 
 class Schedule_timeAdmin(admin.ModelAdmin):
-    list_display = ['movie_id', 'date_id', 'seat_count', 'start_time']
+    list_display = ['movie_id', 'date_id', 'start_time']
 
 
 admin.site.register(Schedule_date, Schedule_dateAdmin)
