@@ -114,6 +114,6 @@ class Seat(models.Model):
     # screen_id = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screen_id_seat', null=True)
     seat_number = models.CharField(max_length=4)
     # available = models.BooleanField(default=True)  # 예매 될 경우 false
-
+    # git test를 위한 수정사항 입니다.
     # def __str__(self):  # -> string
     #     return f"좌석 번호: {self.seat_number}"
