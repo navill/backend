@@ -37,7 +37,7 @@ class Screen(models.Model):
         return self.cinema_id.cinema_name
 
     def __str__(self):  # -> string
-        return self.cinema_id.cinema_name+' '+str(self.screen_number)+'관'
+        return self.cinema_id.cinema_name + ' ' + str(self.screen_number) + '관'
 
 
 class Movie(models.Model):
@@ -61,6 +61,7 @@ class Movie(models.Model):
     def __str__(self):  # -> string
         return self.title
 
+
 class Movie_detail(models.Model):
     movie = models.OneToOneField(Movie, on_delete=models.CASCADE, related_name='movie_id_detail')
     running_time = models.IntegerField()
@@ -76,7 +77,7 @@ class Schedule_date(models.Model):
 
     class Meta:
         ordering = ['-date']
-        
+
     def show_cinema(self):
         return self.screen_id.cinema_id.cinema_name
 
@@ -90,8 +91,8 @@ class Schedule_date(models.Model):
 class Schedule_time(models.Model):
     movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="movie_id_schedule", null=True)
     date_id = models.ForeignKey(Schedule_date, on_delete=models.CASCADE, related_name="date_id_schedule", null=True)
-    seat_count = models.IntegerField()  # 예매된 좌석의 수- Screen의 total_seat와 연산되어져야 한다.
-    available_seat = models.BooleanField(default=True)  # screen_id.total_seat - seat_count =>매진 여부
+    # seat_count = models.IntegerField()  # 예매된 좌석의 수- Screen의 total_seat와 연산되어져야 한다.
+    # available_seat = models.BooleanField(default=True)  # screen_id.total_seat - seat_count =>매진 여부
     start_time = models.TimeField()  # start_time + movie.running_time = end_time
 
     class Meta:
@@ -109,10 +110,10 @@ class Schedule_time(models.Model):
 
 
 class Seat(models.Model):
-    schedule_time = models.OneToOneField(Schedule_time, on_delete=models.CASCADE, related_name="schedule_time_seat",
-                                      null=True)
+    schedule_time = models.OneToOneField(Schedule_time, on_delete=models.CASCADE, primary_key=True,
+                                         related_name='schedule_time_seat')
     # screen_id = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screen_id_seat', null=True)
-    seat_number = models.CharField(max_length=4)
+    seat_number = models.TextField()
     # available = models.BooleanField(default=True)  # 예매 될 경우 false
     # git test를 위한 수정사항 입니다.
     # def __str__(self):  # -> string
