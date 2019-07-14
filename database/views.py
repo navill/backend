@@ -240,29 +240,19 @@ def testDetailView(request):
         my_filter_qs = Q()
         for theater in theaters:
             my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
-        # movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=today, date_id__date__lte=end_day)
         movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=date)
-        # print(movie_schedules.values())
-        # print(movie_schedules.schedule_time_seat.all())
-        # test1 = Schedule_time.objects.all()
-        # test2 = Seat.objects.get(schedule_time_id=test1)
-        # test_result = movie_schedules.schedule_time
-        for i in Schedule_time.schedule_time_seat.get_queryset():
-            print(type(i), i.pk)
-            print(i.seat_number)
 
-
-
-        # movie_schedules.seat_set(id=user1.id).title
         # 영화를 선택했다면~
         if movie_title:
             my_filter_qs = Q()
             for movie in movie_title:
                 my_filter_qs = my_filter_qs | Q(movie_id__title=movie)
 
-            queryset = movie_schedules.filter(my_filter_qs, date_id__date__gte=date, )
-
-            # seat_queryset = Seat.objects.filter(schedule_time_id=)
+            queryset = movie_schedules.filter(my_filter_qs, date_id__date__gte=date).select_related(
+                'schedule_time_seat')
+            for i in queryset:
+                e = queryset.select_related('schedule_time_seat').get(id=i.id)
+                print(e.id, e.movie_id, e.start_time, e.date_id_id, e.movie_id_id, e.schedule_time_seat.seat_number)
             serializer = TestSerializer(queryset, many=True)
         else:
             serializer = TestSerializer(movie_schedules, many=True)

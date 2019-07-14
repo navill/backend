@@ -101,9 +101,9 @@ class Schedule_time(models.Model):
     def show_item_schedule_detail(self):
         return self.screen_id.cinema_id.cinema_name
 
-    def __str__(self):  # -> string
-        return f"지점 : {self.date_id.screen_id.cinema_id.cinema_name}(screen:{self.date_id.screen_id.screen_number}), 상영일자: {self.date_id.date}, 시간: {self.start_time}" \
-            f", 영화 제목: {self.movie_id.title}"
+    # def __str__(self):  # -> string
+    #     return f"지점 : {self.date_id.screen_id.cinema_id.cinema_name}(screen:{self.date_id.screen_id.screen_number}), 상영일자: {self.date_id.date}, 시간: {self.start_time}" \
+    #         f", 영화 제목: {self.movie_id.title}"
 
     def get_type_display(self):
         return self.movie_id.get_type_display()
