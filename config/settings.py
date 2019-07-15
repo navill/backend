@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'oqtnw$$mwoby8jpy1yqbe29+a4qv31y=)ab055)+xmj379!7e('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -86,6 +86,17 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#     'NAME': 'megabox',
+#     'USER': 'cgv05',
+#     'PASSWORD': 'admin12345',
+#     'HOST': 'teamproject05.c0khjq6fepvu.ap-northeast-2.rds.amazonaws.com',
+#     'PORT': '5432',
+#     }
+# }
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -121,11 +132,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = '/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 INSTERNAL_IPS = ['127.0.0.1']
 
@@ -174,3 +185,27 @@ REST_FRAMEWORK = {
 #         }
 #     }
 # }
+
+### AWS ###
+
+AWS_ACCESS_KEY_ID = 'AKIA2PR5NRX5QUWMH7GE'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_REGION = 'ap-northeast-2'
+AWS_STORAGE_BUCKET_NAME = 'teamproject05.static.hellocoding.shop'
+AWS_S3_CUSTOM_DOMAIN = 's3.%s.amazonaws.com/%s' % (AWS_REGION, AWS_STORAGE_BUCKET_NAME)
+# AWS_S3_CUSTOM_DOMAIN = '%s' % AWS_STORAGE_BUCKET_NAME
+# AWS_S3_SECURE_URLS = False
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_DEFAULT_ACL = 'public-read'
+AWS_LOCATION = ''
+
+# For CKEDITOR
+AWS_QUERYSTRING_AUTH = False
+
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'config.asset_storage.MediaStorage'
+
+###########

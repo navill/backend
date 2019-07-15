@@ -15,139 +15,138 @@ from .serializers import *
 from .models import Screen
 
 
-class RegionCreateView(generics.CreateAPIView):
-    serializer_class = RegionSerializer
-    permission_classes = (AllowAny,)
-
-
-class RegionListView(generics.ListAPIView):
-    queryset = Region.objects.all()
-    serializer_class = RegionSerializer
-    search_fields = ('name', 'value')
-
-
-class RegionDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Region.objects.all()
-    serializer_class = RegionSerializer
-    renderer_classes = [JSONRenderer]
-    # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
-
-
-############################################################################################################################################
-
-class CinemaCreateView(generics.CreateAPIView):
-    serializer_class = CinemaSerializer
-    permission_classes = (AllowAny,)
-
-
-class CinemaListView(generics.ListAPIView):
-    queryset = Cinema.objects.all()
-    serializer_class = CinemaSerializer
-    search_fields = ('cinema_name',)
-
-
-class CinemaDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Cinema.objects.all()
-    serializer_class = CinemaSerializer
-    renderer_classes = [JSONRenderer]
-    # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
+# class RegionCreateView(generics.CreateAPIView):
+#     serializer_class = RegionSerializer
+#     permission_classes = (AllowAny,)
+#
+#
+# class RegionListView(generics.ListAPIView):
+#     queryset = Region.objects.all()
+#     serializer_class = RegionSerializer
+#     search_fields = ('name', 'value')
+#
+#
+# class RegionDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Region.objects.all()
+#     serializer_class = RegionSerializer
+#     renderer_classes = [JSONRenderer]
+#     # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
 
 
 ############################################################################################################################################
 
-class ScreenCreateView(generics.CreateAPIView):
-    serializer_class = ScreenSerializer
-    permission_classes = (AllowAny,)
-
-
-class ScreenListView(generics.ListAPIView):
-    queryset = Screen.objects.all()
-    serializer_class = ScreenSerializer
-    search_fields = ('cinema_id__cinemaname',)
-
-
-class ScreenDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Screen.objects.all()
-    serializer_class = ScreenSerializer
-    renderer_classes = [JSONRenderer]
-    # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
-
-
-############################################################################################################################################
-
-class Schedule_timeCreateView(generics.CreateAPIView):
-    serializer_class = Schedule_timeSerializer
-    permission_classes = (AllowAny,)
-
-
-class Schedule_timeListView(generics.ListAPIView):
-    queryset = Schedule_time.objects.all()
-    serializer_class = Schedule_timeSerializer
-    search_fields = ('movie_id__title',)
-
-
-class Schedule_timeDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Schedule_time.objects.all()
-    serializer_class = Schedule_timeSerializer
-    renderer_classes = [JSONRenderer]
-    # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
+# class CinemaCreateView(generics.CreateAPIView):
+#     serializer_class = CinemaSerializer
+#     permission_classes = (AllowAny,)
+#
+#
+# class CinemaListView(generics.ListAPIView):
+#     queryset = Cinema.objects.all()
+#     serializer_class = CinemaSerializer
+#     search_fields = ('cinema_name',)
+#
+#
+# class CinemaDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Cinema.objects.all()
+#     serializer_class = CinemaSerializer
+#     renderer_classes = [JSONRenderer]
+#     # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
 
 
 ############################################################################################################################################
 
-class Schedule_dateCreateView(generics.CreateAPIView):
-    serializer_class = Schedule_dateSerializer
-    permission_classes = (AllowAny,)
-
-
-class Schedule_dateListView(generics.ListAPIView):
-    queryset = Schedule_date.objects.all()
-    serializer_class = Schedule_dateSerializer
-    search_fields = ('screen_id__cinema_id',)
-
-
-class Schedule_dateDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Schedule_date.objects.all()
-    serializer_class = Schedule_dateSerializer
-    renderer_classes = [JSONRenderer]
-    # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
-
-
-############################################################################################################################################
-
-class MovieCreateView(generics.CreateAPIView):
-    serializer_class = MovieSerializer
-    permission_classes = (AllowAny,)
-
-
-class MovieListView(generics.ListAPIView):
-    queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
-    search_fields = ('title',)
-
-
-class MovieDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
-    renderer_classes = [JSONRenderer]
-    # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
+# class ScreenCreateView(generics.CreateAPIView):
+#     serializer_class = ScreenSerializer
+#     permission_classes = (AllowAny,)
+#
+#
+# class ScreenListView(generics.ListAPIView):
+#     queryset = Screen.objects.all()
+#     serializer_class = ScreenSerializer
+#     search_fields = ('cinema_id__cinemaname',)
+#
+#
+# class ScreenDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Screen.objects.all()
+#     serializer_class = ScreenSerializer
+#     renderer_classes = [JSONRenderer]
+#     # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
 
 
 ############################################################################################################################################
 
-theater_param = openapi.Parameter('theater', openapi.IN_QUERY, description="극장을 입력받는 파라미터~", type=openapi.TYPE_ARRAY,
-                                  items=openapi.Items(type=openapi.TYPE_STRING), required=True, )
-movie_title_param = openapi.Parameter('movie_title', openapi.IN_QUERY, description="영화를 입력받는 파라미터~",
-                                      type=openapi.TYPE_ARRAY,
-                                      items=openapi.Items(type=openapi.TYPE_STRING), required=False, )
+# class Schedule_timeCreateView(generics.CreateAPIView):
+#     serializer_class = Schedule_timeSerializer
+#     permission_classes = (AllowAny,)
+#
+#
+# class Schedule_timeListView(generics.ListAPIView):
+#     queryset = Schedule_time.objects.all()
+#     serializer_class = Schedule_timeSerializer
+#     search_fields = ('movie_id__title',)
+#
+#
+# class Schedule_timeDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Schedule_time.objects.all()
+#     serializer_class = Schedule_timeSerializer
+#     renderer_classes = [JSONRenderer]
+#     # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
 
 
-# date_param = openapi.Parameter('date', openapi.IN_QUERY, description="날짜를 입력받는 파라미터~", type=openapi.TYPE_STRING, required=True, )
-@swagger_auto_schema(method='post', manual_parameters=[theater_param, movie_title_param],
-                     responses={200: TestSerializer(many=True)}, operation_description="안녕? 나는 설명이라고해")
+############################################################################################################################################
+
+# class Schedule_dateCreateView(generics.CreateAPIView):
+#     serializer_class = Schedule_dateSerializer
+#     permission_classes = (AllowAny,)
+#
+#
+# class Schedule_dateListView(generics.ListAPIView):
+#     queryset = Schedule_date.objects.all()
+#     serializer_class = Schedule_dateSerializer
+#     search_fields = ('screen_id__cinema_id',)
+#
+#
+# class Schedule_dateDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Schedule_date.objects.all()
+#     serializer_class = Schedule_dateSerializer
+#     renderer_classes = [JSONRenderer]
+#     # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
+
+
+############################################################################################################################################
+
+# class MovieCreateView(generics.CreateAPIView):
+#     serializer_class = MovieSerializer
+#     permission_classes = (AllowAny,)
+#
+#
+# class MovieListView(generics.ListAPIView):
+#     queryset = Movie.objects.all()
+#     serializer_class = MovieSerializer
+#     search_fields = ('title',)
+#
+#
+# class MovieDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Movie.objects.all()
+#     serializer_class = MovieSerializer
+#     renderer_classes = [JSONRenderer]
+#     # permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # 권한을 작성자, 관리자에 부여
+
+
+############################################################################################################################################
+
+# theater_param = openapi.Parameter('theater', openapi.IN_QUERY, description="극장을 입력받는 파라미터~", type=openapi.TYPE_ARRAY,
+#                                   items=openapi.Items(type=openapi.TYPE_STRING), required=True, )
+# movie_title_param = openapi.Parameter('movie_title', openapi.IN_QUERY, description="영화를 입력받는 파라미터~",
+#                                       type=openapi.TYPE_ARRAY,
+#                                       items=openapi.Items(type=openapi.TYPE_STRING), required=False, )
+# date_param = openapi.Parameter('date', openapi.IN_QUERY, description="날짜를 입력받는 파라미터~", type=openapi.TYPE_STRING, format=openapi.FORMAT_DATE,  required=True, )
+
+@swagger_auto_schema(method='post', request_body=QuerySerializer, responses={200: ReservationFirstStepSerializer(many=True)}, operation_id='reservationFirstView',
+                     operation_description="예매 첫 번째 스텝에서 사용자에게 입력 받는 변수들과 응답되는 변수들입니다.")
 # manual_parameters=[theater_param, movie_title_param, date_param],
 @api_view(['POST'])
-def testDetailView(request):
+def reservationFirstView(request):
     theaters = request.POST.getlist('theater', None)  # 극장
     movie_title = request.POST.getlist('movie_title', None)  # 영화 타이틀
     date = request.POST.get('date', None)  # 상영 날짜
@@ -176,8 +175,20 @@ def testDetailView(request):
                 # e.numbering_seat_count(seat_count)
                 print(e.id, e.movie_id, e.start_time, e.date_id_id, e.movie_id_id, "seat count:", e.seat_count,
                       e.schedule_time_seat.seat_number)
-            serializer = TestSerializer(queryset, many=True)
+            serializer = ReservationFirstStepSerializer(queryset, many=True)
         else:
-            serializer = TestSerializer(movie_schedules, many=True)
+            serializer = ReservationFirstStepSerializer(movie_schedules, many=True)
 
     return Response(serializer.data)
+
+@swagger_auto_schema(method='post', request_body=ReservationSecondStepSerializer, responses={200 : Return_200, 404: Return_404}, operation_id='reservationSecondView',
+                     operation_description="예매 두 번째 스텝에서 좌석 및 선택한 영화의 정보들을 서버에 넘길 변수들입니다.", )
+@api_view(['POST'])
+def reservationSecondView(request):
+    schedule_id = request.POST.get('schedule_id', None)  # 사용자가 관람할(선택한) 영화의 스케줄 id
+    seat_number = request.POST.get('seat_number', None)  # 예매된 좌석 번호(배열)
+    price = request.POST.get('price', None)  # 영화의 가격
+    st_count = request.POST.get('st_count', None)  # 예매된 좌석 수
+
+    if request.method == "POST":
+        pass

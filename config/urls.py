@@ -51,9 +51,9 @@ urlpatterns = [
     path('database/', include('database.urls')),
 ]
 
-if settings.DEBUG:
-    import debug_toolbar
-
-    urlpatterns += [
-        path('debug/', include(debug_toolbar.urls)),
-    ]
+# if settings.DEBUG:
+#     import debug_toolbar
+#
+#     urlpatterns += [
+#         path('debug/', include(debug_toolbar.urls)),
+#     ]
