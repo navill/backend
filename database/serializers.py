@@ -55,6 +55,7 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
     cinema = serializers.CharField(source='date_id.screen_id.cinema_id.cinema_name')  # 지점
     screen = serializers.CharField(source='date_id.screen_id.screen_number')  # 상영관
     date = serializers.DateField(source='date_id.date')  # 날짜
+    str_date = serializers.CharField(source='string_date')
     movie = serializers.CharField(source='movie_id.title')  # 영화
     type = serializers.IntegerField(source='movie_id.type')  # 타입
     type_name = TypeChoicesSerializerField()  # 타입
@@ -65,23 +66,24 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule_time
         fields = (
-        'schedule_id', 'cinema', 'screen', 'date', 'start_time', 'movie', 'type', 'type_name', 'st_count', 'total_seat',
-        'seat_number')
-
-
+            'schedule_id', 'cinema', 'screen', 'date', 'str_date', 'start_time', 'movie', 'type', 'type_name',
+            'st_count', 'total_seat', 'seat_number')
 
     @swagger_serializer_method(serializer_or_field=serializers.CharField)
     def get_type_name(self, obj):
         return TypeChoicesSerializerField().data
 
+
 class QuerySerializer(serializers.ModelSerializer):
-    theater = serializers.ListField(source='date_id.screen_id.cinema_id.cinema_name', help_text='지점을 배열 형식으로 입력 받습니다.')  # 지점
+    theater = serializers.ListField(source='date_id.screen_id.cinema_id.cinema_name',
+                                    help_text='지점을 배열 형식으로 입력 받습니다.')  # 지점
     movie = serializers.ListField(source='movie_id.title', required=False, help_text='영화 이름을 배열 형식으로 입력 받습니다.')  # 영화
     date = serializers.DateField(source='date_id.date', help_text='날짜를 입력 받습니다.')  # 날짜
 
     class Meta:
         model = Schedule_time
         fields = ('theater', 'movie', 'date')
+
 
 class ReservationSecondStepSerializer(serializers.ModelSerializer):
     schedule_id = serializers.IntegerField(source='id')  # 사용자가 관람할(선택한) 영화의 스케줄 id
@@ -93,8 +95,10 @@ class ReservationSecondStepSerializer(serializers.ModelSerializer):
         model = Schedule_time
         fields = ('schedule_id', 'seat_number', 'price', 'st_count')
 
+
 class Return_200(serializers.Serializer):
     status = serializers.CharField(allow_blank=True, required=False, default='ok')
+
 
 class Return_404(serializers.Serializer):
     error = serializers.CharField(allow_blank=True, required=False, default='404 Not Found')

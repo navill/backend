@@ -53,7 +53,9 @@ class Movie(models.Model):
         (2, '4D'),
         (3, 'Digital'),
     )
-
+    # img_url = models.CharField(max_length=150)
+    # release_date = models.DateField()
+    # booking_rate = IntegerField()
     title = models.CharField(max_length=100)
     age = models.IntegerField(choices=AGE_RATE, default=0)
     type = models.IntegerField(choices=TYPE, default=0)
@@ -66,7 +68,6 @@ class Movie_detail(models.Model):
     movie = models.OneToOneField(Movie, on_delete=models.CASCADE, related_name='movie_id_detail')
     running_time = models.IntegerField()
     description = models.TextField()
-    release_date = models.DateField()
 
 
 #
@@ -84,6 +85,9 @@ class Schedule_date(models.Model):
     def show_screen(self):
         return self.screen_id.screen_number
 
+    def call_date(self):
+        return self.date
+
     def __str__(self):  # -> string
         return f"{self.screen_id.cinema_id.cinema_name} screen {self.screen_id.screen_number} - 상영일자: {self.date} "
 
@@ -91,25 +95,36 @@ class Schedule_date(models.Model):
 class Schedule_time(models.Model):
     movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="movie_id_schedule", null=True)
     date_id = models.ForeignKey(Schedule_date, on_delete=models.CASCADE, related_name="date_id_schedule", null=True)
-    seat_count = models.IntegerField(default=0)  # 예매된 좌석의 수- Screen의 total_seat와 연산되어져야 한다.
+    seat_count = models.IntegerField(editable=False, default=0)  # 예매된 좌석의 수- Screen의 total_seat와 연산되어져야 한다.
     # available_seat = models.BooleanField(default=True)  # screen_id.total_seat - seat_count =>매진 여부
     start_time = models.TimeField()  # start_time + movie.running_time = end_time
+    string_date = models.CharField(max_length=15, editable=False)
 
     class Meta:
         ordering = ['start_time']
 
-    def show_item_schedule_detail(self):
-        return self.screen_id.cinema_id.cinema_name
-
+    # def show_item_schedule_detail(self):
+    #     return self.screen_id.cinema_id.cinema_name
+    # 
     def numbering_seat_count(self, length_count_list):
         self.seat_count = length_count_list
-        self.save()
-    # def __str__(self):  # -> string
-    #     return f"지점 : {self.date_id.screen_id.cinema_id.cinema_name}(screen:{self.date_id.screen_id.screen_number}), 상영일자: {self.date_id.date}, 시간: {self.start_time}" \
-    #         f", 영화 제목: {self.movie_id.title}"
+
+    def save(self, *args, **kwargs):
+        # convert date to string 
+        if not self.string_date:
+            splited_date = list(map(int, str(self.date_id.date).split('-')))
+            str_list_date = [str(a) for a in splited_date]
+            str_date = ''.join(str_list_date)
+            self.string_date = str_date
+            self.date_id.save()
+        super(Schedule_time, self).save(*args, **kwargs)
 
     def get_type_display(self):
         return self.movie_id.get_type_display()
+
+    def __str__(self):  # -> string
+        return f"지점 : {self.date_id.screen_id.cinema_id.cinema_name}(screen:{self.date_id.screen_id.screen_number}), 상영일자: {self.date_id.date}, 시간: {self.start_time}" \
+            f", 영화 제목: {self.movie_id.title}"
 
 
 class Seat(models.Model):
@@ -118,8 +133,8 @@ class Seat(models.Model):
     # screen_id = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screen_id_seat', null=True)
     seat_number = models.TextField()
 
-
-    # available = models.BooleanField(default=True)  # 예매 될 경우 false
-    # git test를 위한 수정사항 입니다.
-    # def __str__(self):  # -> string
-    #     return f"좌석 번호: {self.seat_number}"
+    def save(self, *args, **kwargs):
+        seat_count = len(str(self.seat_number).split(','))
+        self.schedule_time.seat_count = seat_count
+        self.schedule_time.save()
+        super(Seat, self).save(*args, **kwargs)

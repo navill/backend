@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.db.models import Q
 from .models import *
 
-
 # Create your views here.
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -142,14 +141,17 @@ from .models import Screen
 #                                       items=openapi.Items(type=openapi.TYPE_STRING), required=False, )
 # date_param = openapi.Parameter('date', openapi.IN_QUERY, description="날짜를 입력받는 파라미터~", type=openapi.TYPE_STRING, format=openapi.FORMAT_DATE,  required=True, )
 
-@swagger_auto_schema(method='post', request_body=QuerySerializer, responses={200: ReservationFirstStepSerializer(many=True)}, operation_id='reservationFirstView',
+@swagger_auto_schema(method='post', request_body=QuerySerializer,
+                     responses={200: ReservationFirstStepSerializer(many=True)}, operation_id='reservationFirstView',
                      operation_description="예매 첫 번째 스텝에서 사용자에게 입력 받는 변수들과 응답되는 변수들입니다.")
 # manual_parameters=[theater_param, movie_title_param, date_param],
 @api_view(['POST'])
 def reservationFirstView(request):
     theaters = request.POST.getlist('theater', None)  # 극장
-    movie_title = request.POST.getlist('movie_title', None)  # 영화 타이틀
+    movie_title = request.POST.getlist('movie', None)  # 영화 타이틀
     date = request.POST.get('date', None)  # 상영 날짜
+    # sch_date = Schedule_date.objects.get(id=1)
+    # print(f'day:{sch_date.call_date().day}, month:{sch_date.call_date().month}')
 
     # post 형식이라면~
     if request.method == "POST":
@@ -157,6 +159,10 @@ def reservationFirstView(request):
         for theater in theaters:
             my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
         movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=date)
+
+        # print(dir(movie_schedules))
+        # print(type(movie_schedules))
+        # print(movie_schedules.datetimes)
         # movie_schedules.numbering_seat_count()
         # print(dir(movie_schedules))
         # 영화를 선택했다면~
@@ -167,21 +173,26 @@ def reservationFirstView(request):
 
             queryset = movie_schedules.filter(my_filter_qs, date_id__date__gte=date).select_related(
                 'schedule_time_seat')
-            print(queryset.values('id'))
             for i in queryset:
                 e = queryset.select_related('schedule_time_seat').get(id=i.id)
                 e.seat_count = len(str(e.schedule_time_seat.seat_number).split(','))
                 # 아래의 함수는 사용자가 좌석을 입력했을 때 실행해야한다.
-                # e.numbering_seat_count(seat_count)
+                print(e.seat_count)
+                e.numbering_seat_count(e.seat_count)
+                e.save()
+
                 print(e.id, e.movie_id, e.start_time, e.date_id_id, e.movie_id_id, "seat count:", e.seat_count,
                       e.schedule_time_seat.seat_number)
+
             serializer = ReservationFirstStepSerializer(queryset, many=True)
         else:
             serializer = ReservationFirstStepSerializer(movie_schedules, many=True)
 
     return Response(serializer.data)
 
-@swagger_auto_schema(method='post', request_body=ReservationSecondStepSerializer, responses={200 : Return_200, 404: Return_404}, operation_id='reservationSecondView',
+
+@swagger_auto_schema(method='post', request_body=ReservationSecondStepSerializer,
+                     responses={200: Return_200, 404: Return_404}, operation_id='reservationSecondView',
                      operation_description="예매 두 번째 스텝에서 좌석 및 선택한 영화의 정보들을 서버에 넘길 변수들입니다.", )
 @api_view(['POST'])
 def reservationSecondView(request):
