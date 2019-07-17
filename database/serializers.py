@@ -1,5 +1,5 @@
 from drf_yasg.utils import swagger_serializer_method
-from rest_framework import serializers
+from rest_framework import serializers, fields
 
 from .models import *
 
@@ -50,6 +50,10 @@ class TypeChoicesSerializerField(serializers.SerializerMethodField):
         return method()
 
 
+    # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
+
+
+
 class ReservationFirstStepSerializer(serializers.ModelSerializer):
     schedule_id = serializers.IntegerField(source='id')  # 사용자가 관람할(선택한) 영화의 스케줄 id
     cinema = serializers.CharField(source='date_id.screen_id.cinema_id.cinema_name')  # 지점
@@ -57,8 +61,8 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
     # date = serializers.DateField(source='date_id.date')  # 날짜
     date = serializers.CharField(source='string_date')  # 2019 11 1 vs 2019 1 12
     movie = serializers.CharField(source='movie_id.title')  # 영화
-    type = serializers.IntegerField(source='movie_id.type')  # 타입
-    type_name = TypeChoicesSerializerField()  # 타입
+    # type = serializers.IntegerField(source='movie_id.type')  # 타입
+
     total_seat = serializers.IntegerField(source='date_id.screen_id.total_seat')  # 총좌석 수
     st_count = serializers.IntegerField(source='seat_count')  # 예매된 좌석 수
     seat_number = serializers.CharField(source='schedule_time_seat.seat_number')  # 예매된 좌석 번호(배열)
@@ -66,7 +70,7 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule_time
         fields = (
-            'schedule_id', 'cinema', 'screen', 'date', 'start_time', 'movie', 'type', 'type_name',
+            'schedule_id', 'cinema', 'screen', 'date', 'start_time', 'movie', 'type_',
             'st_count', 'total_seat', 'seat_number')
 
     @swagger_serializer_method(serializer_or_field=serializers.CharField)

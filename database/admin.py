@@ -61,7 +61,7 @@ admin.site.register(Seat, SeatAdmin)
 
 
 class MovieAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'age', 'type']
+    list_display = ['id', 'title', 'age', 'type', 'img_url', 'release_date', 'booking_rate']
 
 
 admin.site.register(Movie, MovieAdmin)
