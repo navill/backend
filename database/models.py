@@ -9,7 +9,7 @@ class Region(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __str__(self):  # -> string
+    def __str__(self):
         return self.name
 
 
@@ -36,7 +36,7 @@ class Screen(models.Model):
     def show_cinema(self):
         return self.cinema_id.cinema_name
 
-    def __str__(self):  # -> string
+    def __str__(self):
         return self.cinema_id.cinema_name + ' ' + str(self.screen_number) + '관'
 
 
@@ -53,14 +53,14 @@ class Movie(models.Model):
         (2, '4D'),
         (3, 'Digital'),
     )
-    # img_url = models.CharField(max_length=150)
-    # release_date = models.DateField()
-    # booking_rate = IntegerField()
+    img_url = models.CharField(max_length=200)
+    release_date = models.DateField()
+    booking_rate = models.IntegerField()
     title = models.CharField(max_length=100)
     age = models.IntegerField(choices=AGE_RATE, default=0)
     type = models.IntegerField(choices=TYPE, default=0)
 
-    def __str__(self):  # -> string
+    def __str__(self):
         return self.title
 
 
@@ -88,7 +88,7 @@ class Schedule_date(models.Model):
     def call_date(self):
         return self.date
 
-    def __str__(self):  # -> string
+    def __str__(self):
         return f"{self.screen_id.cinema_id.cinema_name} screen {self.screen_id.screen_number} - 상영일자: {self.date} "
 
 
@@ -122,7 +122,7 @@ class Schedule_time(models.Model):
     def get_type_display(self):
         return self.movie_id.get_type_display()
 
-    def __str__(self):  # -> string
+    def __str__(self):
         return f"지점 : {self.date_id.screen_id.cinema_id.cinema_name}(screen:{self.date_id.screen_id.screen_number}), 상영일자: {self.date_id.date}, 시간: {self.start_time}" \
             f", 영화 제목: {self.movie_id.title}"
 
