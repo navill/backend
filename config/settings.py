@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'database',
     'drf_yasg',
+    'multiselectfield',
 ]
 
 MIDDLEWARE = [

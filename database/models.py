@@ -1,4 +1,18 @@
 from django.db import models
+from multiselectfield import MultiSelectField
+
+AGE_RATE = (
+    (0, '전체 관람'),
+    (12, '12세 관람가'),
+    (15, '15세 관람가'),
+    (19, '청소년 관람불가'),
+)
+TYPE = (
+    (0, '2D'),
+    (1, '3D'),
+    (2, '4D'),
+    (3, 'Digital'),
+)
 
 
 # Create your models here.
@@ -29,6 +43,7 @@ class Screen(models.Model):
     cinema_id = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name="cinema_id", null=True)
     screen_number = models.IntegerField()
     total_seat = models.IntegerField()
+    # type = MultiSelectField(choices=TYPE, max_choices=4)
 
     class Meta:
         ordering = ['screen_number']
@@ -41,24 +56,13 @@ class Screen(models.Model):
 
 
 class Movie(models.Model):
-    AGE_RATE = (
-        (0, '전체 관람'),
-        (12, '12세 관람가'),
-        (15, '15세 관람가'),
-        (19, '청소년 관람불가'),
-    )
-    TYPE = (
-        (0, '2D'),
-        (1, '3D'),
-        (2, '4D'),
-        (3, 'Digital'),
-    )
     img_url = models.CharField(max_length=200)
     release_date = models.DateField()
-    booking_rate = models.IntegerField()
+    booking_rate = models.FloatField()
     title = models.CharField(max_length=100)
     age = models.IntegerField(choices=AGE_RATE, default=0)
-    type = models.IntegerField(choices=TYPE, default=0)
+    # type = models.IntegerField(choices=TYPE, default=0)
+    type = MultiSelectField(choices=TYPE, max_choices=4)
 
     def __str__(self):
         return self.title
@@ -68,9 +72,11 @@ class Movie_detail(models.Model):
     movie = models.OneToOneField(Movie, on_delete=models.CASCADE, related_name='movie_id_detail')
     running_time = models.IntegerField()
     description = models.TextField()
+    director = models.CharField(max_length=15)
+    cast = models.TextField()
+    genre = models.TextField()
 
 
-#
 class Schedule_date(models.Model):
     screen_id = models.ForeignKey(Screen, on_delete=models.SET_NULL, related_name="screen_id_schedule", blank=True,
                                   null=True)

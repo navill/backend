@@ -365,3 +365,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/git,linux,macos,python,django,windows,pycharm+all
+
+
+# jihoon
+create_db_data.py
