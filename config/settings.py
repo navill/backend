@@ -174,3 +174,16 @@ REST_FRAMEWORK = {
 #         }
 #     }
 # }
+
+import secret
+
+AWS_ACCESS_KEY_ID = secret.settings['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = secret.settings['AWS_SECRET_ACCESS_KEY']
+AWS_REGION = secret.settings['AWS_REGION']
+AWS_STORAGE_BUCKET_NAME = secret.settings['AWS_STORAGE_BUCKET_NAME']
+AWS_S3_CUSTOM_DOMAIN = secret.settings['AWS_S3_CUSTOM_DOMAIN']
+AWS_S3_SECURE_URLS = secret.settings['AWS_S3_SECURE_URLS']
+
+AWS_S3_OBJECT_PARAMETERS = secret.settings['AWS_S3_OBJECT_PARAMETERS']
+AWS_DEFAULT_ACL = secret.settings['AWS_DEFAULT_ACL']
+AWS_LOCATION = secret.settings['AWS_LOCATION']
