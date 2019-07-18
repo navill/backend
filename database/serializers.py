@@ -82,7 +82,7 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule_time
         fields = (
-            'schedule_id', 'cinema', 'screen', 'date', 'start_time', 'movie', 'type_',
+            'schedule_id', 'cinema', 'screen', 'date', 'start_time', 'movie',
             'st_count', 'total_seat', 'seat_number')
 
     @swagger_serializer_method(serializer_or_field=serializers.CharField)

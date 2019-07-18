@@ -76,5 +76,7 @@ def reservationSecondView(request):
     # 예매된 좌석 수
     st_count = request.POST.get('st_count', None)
 
+    # db에 있는지 여부 + 기존의 st_count에 post된 좌석 추가
+    #
     if request.method == "POST":
         pass

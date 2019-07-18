@@ -3,9 +3,9 @@ from multiselectfield import MultiSelectField
 
 AGE_RATE = (
     (0, '전체 관람'),
-    (12, '12세 관람가'),
-    (15, '15세 관람가'),
-    (19, '청소년 관람불가'),
+    (1, '12세 관람가'),
+    (2, '15세 관람가'),
+    (3, '청소년 관람불가'),
 )
 TYPE = (
     (0, '2D'),
@@ -134,10 +134,9 @@ class Schedule_time(models.Model):
 
 
 class Seat(models.Model):
-    schedule_time = models.OneToOneField(Schedule_time, on_delete=models.CASCADE, primary_key=True,
-                                         related_name='schedule_time_seat')
+    schedule_time = models.OneToOneField(Schedule_time, on_delete=models.CASCADE, related_name='schedule_time_seat', primary_key=True)
     # screen_id = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screen_id_seat', null=True)
-    seat_number = models.TextField()
+    seat_number = models.TextField(blank=True, default='')
 
     def save(self, *args, **kwargs):
         seat_count = len(str(self.seat_number).split(','))
