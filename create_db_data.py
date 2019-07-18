@@ -170,6 +170,8 @@ def create_objects_movie_movie_detail():
 def create_objects_screen():
     total_seat = [120, 110, 90, 80, 70, 130, 135, 150, 200]
     cinema = ['강남', '군자', '동대문', '대전', '세종']
+    for i in range(len(cinema)):
+        Cinema.objects.create(cinema_name=cinema[i])
     for i in range(1, 6):
         for j in range(1, 5):
             rand = int(randint(0, 8))

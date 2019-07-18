@@ -20,15 +20,15 @@ from .models import *
 #     list_display = ['theater', 'screen_number', 'total_seat']
 #     inlines = [ScheduleInline, SeatInline]
 
-class RegionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
+# class RegionAdmin(admin.ModelAdmin):
+#     list_display = ['id', 'name']
 
 
-admin.site.register(Region, RegionAdmin)
+# admin.site.register(Region, RegionAdmin)
 
 
 class CinemaAdmin(admin.ModelAdmin):
-    list_display = ['region_id', 'cinema_name']
+    list_display = ['cinema_name']
 
 
 admin.site.register(Cinema, CinemaAdmin)

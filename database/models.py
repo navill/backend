@@ -17,18 +17,18 @@ TYPE = (
 
 # Create your models here.
 
-class Region(models.Model):
-    name = models.CharField(max_length=100)
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
+# class Region(models.Model):
+#     name = models.CharField(max_length=100)
+# 
+#     class Meta:
+#         ordering = ['name']
+# 
+#     def __str__(self):
+#         return self.name
 
 
 class Cinema(models.Model):
-    region_id = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='region_id')
+    # region_id = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='region_id')
     cinema_name = models.CharField(max_length=100)
     detail = models.CharField(max_length=100)
 
@@ -40,7 +40,7 @@ class Cinema(models.Model):
 
 
 class Screen(models.Model):
-    cinema_id = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name="cinema_id", null=True)
+    cinema_id = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name="cinema_id")
     screen_number = models.IntegerField()
     total_seat = models.IntegerField()
     # type = MultiSelectField(choices=TYPE, max_choices=4)
