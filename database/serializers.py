@@ -3,11 +3,11 @@ from rest_framework import serializers, fields
 
 from .models import *
 
-
-class RegionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Region
-        fields = '__all__'
+#
+# class RegionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Region
+#         fields = '__all__'
 
 
 class ScreenSerializer(serializers.ModelSerializer):
