@@ -14,7 +14,7 @@ from .serializers import *
                      operation_description="예매 첫 번째 스텝에서 사용자에게 입력 받는 변수들과 응답되는 변수들입니다.")
 @swagger_auto_schema(method='get',
                      responses={200: GetReservationFirstStepSerializer(many=True)}, operation_id='reservationFirstView',
-                     operation_description="예매 첫 번째 스텝에서 사용자에게 입력 받는 변수들과 응답되는 변수들입니다.")
+                     operation_description="예매 첫 번째 스텝에서 영화 전체 목록 출력 때 응답되는 변수들입니다.")
 # manual_parameters=[theater_param, movie_title_param, date_param],
 @api_view(['POST', 'GET'])
 def reservationFirstView(request):

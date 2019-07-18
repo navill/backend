@@ -49,14 +49,12 @@ class TypeChoicesSerializerField(serializers.SerializerMethodField):
         # finally use instance method to return result of get_XXXX_display()
         return method()
 
-class GetReservationFirstStepSerializer(serializers.ModelSerializer):
+class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
     movie_id = serializers.IntegerField(source='id')  # 영화 id
-    img_url = serializers.CharField(source='img_url')  # 영화 이미지
-    release_date = serializers.DateField(source='release_date')  # 영화 날짜
-    booking_rate = serializers.FloatField(source='booking_rate')  # 영화 예매율
-    title = serializers.CharField(source='title')  # 영화 제목
-    age = serializers.IntegerField(source='age')  # 영화 연령 제한
-    type = serializers.IntegerField(source='type')  # 타입
+    age = serializers.MultipleChoiceField(choices=AGE_RATE,
+                                          help_text='0: 전체 관람, 12: 12세 관람가, 15: 15세 관람가, 19: 청소년 관람불가')
+    type = serializers.MultipleChoiceField(choices=TYPE,
+                                           help_text='0: 2D, 1: 3D, 2: 4D, 3: Digital')
 
     class Meta:
         model = Movie
@@ -69,7 +67,7 @@ class GetReservationFirstStepSerializer(serializers.ModelSerializer):
 class ReservationFirstStepSerializer(serializers.ModelSerializer):
     schedule_id = serializers.IntegerField(source='id')  # 사용자가 관람할(선택한) 영화의 스케줄 id
     cinema = serializers.CharField(source='date_id.screen_id.cinema_id.cinema_name')  # 지점
-    screen = serializers.CharField(source='date_id.screen_id.screen_number')  # 상영관
+    screen = serializers.IntegerField(source='date_id.screen_id.screen_number')  # 상영관
     # date = serializers.DateField(source='date_id.date')  # 날짜
     date = serializers.CharField(source='string_date')  # 2019 11 1 vs 2019 1 12
     movie = serializers.CharField(source='movie_id.title')  # 영화
@@ -82,7 +80,7 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule_time
         fields = (
-            'schedule_id', 'cinema', 'screen', 'date', 'start_time', 'movie', 'type_',
+            'schedule_id', 'cinema', 'screen', 'date', 'start_time', 'movie',
             'st_count', 'total_seat', 'seat_number')
 
     @swagger_serializer_method(serializer_or_field=serializers.CharField)
