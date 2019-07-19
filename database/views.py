@@ -52,8 +52,8 @@ def reservationFirstView(request):
                 e.numbering_seat_count(e.seat_count)
                 e.save()
 
-                print(e.id, e.movie_id, e.start_time, e.date_id_id, e.movie_id_id, "seat count:", e.seat_count,
-                      e.schedule_time_seat.seat_number)
+                # print(e.id, e.movie_id, e.start_time, e.date_id_id, e.movie_id_id, "seat count:", e.seat_count,
+                #       e.schedule_time_seat.seat_number)
 
             serializer = ReservationFirstStepSerializer(queryset, many=True)
         else:
@@ -77,6 +77,35 @@ def reservationSecondView(request):
     st_count = request.POST.get('st_count', None)
 
     # db에 있는지 여부 + 기존의 st_count에 post된 좌석 추가
-    #
+    # 아래의 코드는 Post.get(st_count)를 사용하지 않음 -> 기존 seat_number의 배열 수로 계산해서 처리함
     if request.method == "POST":
-        pass
+        selected_schedule = Schedule_time.objects.get(
+            id=schedule_id)  # .update(seat_number=seat_number, schedule_time_seat__seat_number=seat_number)
+        # 예약 되어있는 좌석 리스트
+        booked_seat_numbers = selected_schedule.schedule_time_seat.seat_number
+        print(booked_seat_numbers)
+        # seat_number, booked_list.split() : 클라이언트로부터 넘어온 str data -> list data로 변환
+        booked_list = booked_seat_numbers.split(',')
+        if seat_number:
+            seat_number = seat_number.split(',')
+            for seat in seat_number:
+                if seat not in booked_list:
+                    booked_list.append(seat)
+            booked_list.sort()
+            update_seat = ','.join(booked_list)
+            # update된 좌석 수
+            st_count = len(booked_list)
+            # update된 좌석 번호
+            selected_schedule.schedule_time_seat.seat_number = update_seat
+
+            selected_schedule.numbering_seat_count(st_count)
+            # save Schedule_time
+            selected_schedule.save()
+            # save Seat table
+            selected_schedule.schedule_time_seat.save()
+            serializer = ReservationFirstStepSerializer(selected_schedule)
+            return Response(serializer.data)
+        else:
+            serializer = ReservationFirstStepSerializer(selected_schedule)
+            return Response(serializer.data)
+

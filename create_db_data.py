@@ -240,7 +240,7 @@ def create_objects_seat():
                 total_number += (index + 1)
                 if total_number > screen_max_seat:  # screen_object.total_seat:
                     break
-        result = sorted(seat_number_list)
+        result = ','.join(seat_number_list)
         Seat.objects.create(schedule_time_id=i, seat_number=result)
         # 현재 좌석이 A1, A11, A12, A2, A3 이런식으로 오더링에 문제 있음
         # seat_numbers의 키값을 역순으로 배열하여 가중치를 이용한 좌석 배열로 생성하는 것을 고려
