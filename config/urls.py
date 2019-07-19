@@ -41,7 +41,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('api/doc/', schema_view),
-    # path('api/get_token/', obtain_auth_token),
+    path('api/get_token/', obtain_auth_token),
 
     url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
