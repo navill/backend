@@ -202,11 +202,12 @@ AWS_S3_SECURE_URLS = secret.settings['AWS_S3_SECURE_URLS']
 AWS_S3_OBJECT_PARAMETERS = secret.settings['AWS_S3_OBJECT_PARAMETERS']
 AWS_DEFAULT_ACL = secret.settings['AWS_DEFAULT_ACL']
 AWS_LOCATION = secret.settings['AWS_LOCATION']
+STATICFILES_STORAGE = secret.settings['STATICFILES_STORAGE']
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
-    'google.com',
-    'hostname.example.com',
-    'localhost:8000',
-    '127.0.0.1:9000',
+    'https://google.com',
+    'https://hostname.example.com',
+    'https://localhost:8000',
+    'https://127.0.0.1:9000',
 ]
