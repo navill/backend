@@ -206,9 +206,9 @@ STATICFILES_STORAGE = secret.settings['STATICFILES_STORAGE']
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
-    'https://google.com',
-    'https://hostname.example.com',
-    'https://localhost:8000',
-    'https://localhost:4200',
-    'https://127.0.0.1:9000',
+    'http://google.com',
+    'http://hostname.example.com',
+    'http://localhost:8000',
+    'http://localhost:4200',
+    'http://127.0.0.1:9000',
 ]
