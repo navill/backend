@@ -183,9 +183,9 @@ REST_FRAMEWORK = {
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         "api_key": {
-            "type":"apiKey",
-            "name":"Authorization",
-            "in":"header",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
         }
     }
 }
@@ -212,3 +212,5 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:4200',
     'http://127.0.0.1:9000',
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
