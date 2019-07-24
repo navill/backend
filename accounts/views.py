@@ -32,7 +32,7 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 class UserListAPI(generics.ListAPIView):  # user list 값 받기?
     queryset = get_user_model().objects.all()
     serializer_class = UserListSerializer
-    filterset_fields = ('id', 'username')  # 필터 기능을 동작시키고 싶으면 해당 코드 이 위치에 작성
+    # filterset_fields = ('id',)  # 필터 기능을 동작시키고 싶으면 해당 코드 이 위치에 작성
     permission_classes = (AllowAny,)
 
     # 본인에 관한 정보만 노출되도록 설정코드작성 - 관리자는 전체목록 확인 가능

@@ -6,14 +6,14 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 뜨는 정보
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
+        fields = ['email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
                   'wishMovie']
 
 
 class UserListSerializer(serializers.ModelSerializer):  # 유저 목록 출력을 위한 시리얼 라이저
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
+        fields = ['id', 'email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
                   'wishMovie']
 
 
@@ -22,7 +22,7 @@ class UserListSerializer(serializers.ModelSerializer):  # 유저 목록 출력�
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'password', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
+        fields = ['email', 'password', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
                   'wishMovie']
         # fields = '__all__'
 
