@@ -52,7 +52,7 @@ class TypeChoicesSerializerField(serializers.SerializerMethodField):
 class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
     movie_id = serializers.IntegerField(source='id')  # 영화 id
     age = serializers.ChoiceField(choices=AGE_RATE,
-                                          help_text='0: 전체 관람, 12: 12세 관람가, 15: 15세 관람가, 19: 청소년 관람불가')
+                                          help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
     type = serializers.MultipleChoiceField(choices=TYPE,
                                            help_text='0: 2D, 1: 3D, 2: 4D, 3: Digital')
     selected = serializers.BooleanField(default=False)

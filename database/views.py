@@ -27,7 +27,7 @@ def reservationFirstView(request):
 
     # get 형식이라면~
     if request.method == "GET":
-        movie = Movie.objects.all()
+        movie = Movie.objects.all().order_by('-release_date')  # 최신 개봉일 순으로 정렬
         serializer = GetReservationFirstStepSerializer(movie, many=True)
 
     # post 형식이라면~
@@ -35,7 +35,7 @@ def reservationFirstView(request):
         my_filter_qs = Q()
         for theater in theaters:
             my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
-        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=date)
+        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=date).order_by('string_date', 'start_time')  # 날짜, 시간 순으로 정렬
 
         # 영화를 선택했다면
         if movie_title:
