@@ -1,7 +1,9 @@
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers, fields
+from rest_framework.serializers import ListSerializer
 
 from .models import *
+
 
 #
 # class RegionSerializer(serializers.ModelSerializer):
@@ -49,10 +51,11 @@ class TypeChoicesSerializerField(serializers.SerializerMethodField):
         # finally use instance method to return result of get_XXXX_display()
         return method()
 
+
 class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
     movie_id = serializers.IntegerField(source='id')  # 영화 id
     age = serializers.ChoiceField(choices=AGE_RATE,
-                                          help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
+                                  help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
     type = serializers.MultipleChoiceField(choices=TYPE,
                                            help_text='0: 2D, 1: 3D, 2: 4D, 3: Digital')
     selected = serializers.BooleanField(default=False)
@@ -62,7 +65,6 @@ class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'type', 'selected')
 
     # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
-
 
 
 class ReservationFirstStepSerializer(serializers.ModelSerializer):
@@ -76,7 +78,9 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
 
     total_seat = serializers.IntegerField(source='date_id.screen_id.total_seat')  # 총좌석 수
     st_count = serializers.IntegerField(source='seat_count')  # 예매된 좌석 수
-    seat_number = serializers.CharField(source='schedule_time_seat.seat_number')  # 예매된 좌석 번호(배열)
+    # seat_number = serializers.CharField(source='schedule_time_seat.seat_number')  # 예매된 좌석 번호(배열)
+    seat_number = serializers.ListField(source='schedule_time_seat.seat_number', default=[],
+                                        child=serializers.CharField(max_length=500))
 
     class Meta:
         model = Schedule_time

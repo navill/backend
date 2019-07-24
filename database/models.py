@@ -8,10 +8,13 @@ AGE_RATE = (
     (3, '청소년 관람불가'),
 )
 TYPE = (
-    (0, '2D'),
+    (0, '디지털'),
     (1, '3D'),
     (2, '4D'),
-    (3, 'Digital'),
+)
+SUB_TYPE = (
+    (0, '(자막)'),
+    (1, '(더빙)')
 )
 
 
@@ -43,6 +46,7 @@ class Screen(models.Model):
     cinema_id = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name="cinema_id")
     screen_number = models.IntegerField()
     total_seat = models.IntegerField()
+
     # type = MultiSelectField(choices=TYPE, max_choices=4)
 
     class Meta:
@@ -62,7 +66,8 @@ class Movie(models.Model):
     title = models.CharField(max_length=100)
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
-    type = MultiSelectField(choices=TYPE, max_choices=4)
+    type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
+    sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
     def __str__(self):
         return self.title
@@ -134,7 +139,8 @@ class Schedule_time(models.Model):
 
 
 class Seat(models.Model):
-    schedule_time = models.OneToOneField(Schedule_time, on_delete=models.CASCADE, related_name='schedule_time_seat', primary_key=True)
+    schedule_time = models.OneToOneField(Schedule_time, on_delete=models.CASCADE, related_name='schedule_time_seat',
+                                         primary_key=True)
     # screen_id = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screen_id_seat', null=True)
     seat_number = models.TextField(blank=True, default='')
 

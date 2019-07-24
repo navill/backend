@@ -19,26 +19,24 @@ from .serializers import *
 @api_view(['POST', 'GET'])
 def reservationFirstView(request):
     # 극장
-    theaters = request.POST.getlist('theater', None)
+    theater_list = request.GET.get('theater', None)  # list type
+    print(theater_list)
     # 영화 타이틀
-    movie_title = request.POST.getlist('movie', None)
+    movie_title = request.GET.get('movie', None)  # list type
+    print(movie_title)
     # 상영 날짜
-    date = request.POST.get('date', None)
-
+    date = request.GET.get('date', None)  # -> 2019-07-06
     # get 형식이라면~
-    if request.method == "GET":
-        movie = Movie.objects.all().order_by('-release_date')  # 최신 개봉일 순으로 정렬
-        serializer = GetReservationFirstStepSerializer(movie, many=True)
-
-    # post 형식이라면~
-    elif request.method == "POST":
+    if theater_list and date:  # get_queryset에 세 가지 중 두 가지(theater, date) 있을 경우
+        theaters = theater_list.split('_')
         my_filter_qs = Q()
         for theater in theaters:
             my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
-        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=date).order_by('string_date', 'start_time')  # 날짜, 시간 순으로 정렬
-
+        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=date).order_by('string_date','start_time')  # 날짜, 시간 순으로 정렬
+        # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
         # 영화를 선택했다면
-        if movie_title:
+        if movie_title:  # get_queryset에 영화가 포함되어 있을 경우(세 변수 모두 포함) -> 극장에서 상영중인 영화 리스트 출력
+            movie_title = movie_title.split('_')
             my_filter_qs = Q()
             for movie in movie_title:
                 my_filter_qs = my_filter_qs | Q(movie_id__title=movie)
@@ -51,14 +49,14 @@ def reservationFirstView(request):
                 # 아래의 함수는 사용자가 좌석을 입력했을 때 실행해야한다.
                 e.numbering_seat_count(e.seat_count)
                 e.save()
-
                 # print(e.id, e.movie_id, e.start_time, e.date_id_id, e.movie_id_id, "seat count:", e.seat_count,
                 #       e.schedule_time_seat.seat_number)
-
             serializer = ReservationFirstStepSerializer(queryset, many=True)
         else:
             serializer = ReservationFirstStepSerializer(movie_schedules, many=True)
-
+    else:  # GET query_set이 없을 경우 : 모든 영화 리스트 출력
+        movie = Movie.objects.all().order_by('-booking_rate')  # 예매율 순으로 정렬됨
+        serializer = GetReservationFirstStepSerializer(movie, many=True)
     return Response(serializer.data)
 
 
@@ -109,3 +107,12 @@ def reservationSecondView(request):
             serializer = ReservationFirstStepSerializer(selected_schedule)
             return Response(serializer.data)
 
+
+def convert_get_query(get_query):
+    """
+    :param get_query: _로 구분된 스트링
+    :return: list
+    """
+    data = get_query.split('_')
+    print(type(data))
+    return data
