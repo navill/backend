@@ -66,3 +66,8 @@ class MovieAdmin(admin.ModelAdmin):
 
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(Movie_detail)
+
+class BookingHistoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'bookingNumber', 'booking_date')
+
+admin.site.register(BookingHistory, BookingHistoryAdmin)

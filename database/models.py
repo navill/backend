@@ -1,5 +1,6 @@
 from django.db import models
 from multiselectfield import MultiSelectField
+from accounts.models import User
 
 AGE_RATE = (
     (0, '전체 관람'),
@@ -143,3 +144,14 @@ class Seat(models.Model):
         self.schedule_time.seat_count = seat_count
         self.schedule_time.save()
         super(Seat, self).save(*args, **kwargs)
+
+class BookingHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')  # 예매한 유저
+    bookingNumber = models.CharField(editable=False, max_length=200, unique=True)  # 예매 번호, 랜덤하게 생성되며 유일한 값을 가짐
+    movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="movie_id_booking")  # 영화 타이틀
+    screen = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screens')  # 지점, 상영관,
+    seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
+    date = models.ForeignKey(Schedule_date, on_delete=models.CASCADE, related_name='dates')  # 날짜, 시간
+    booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간
+
+

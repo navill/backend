@@ -151,18 +151,21 @@ movie_urls = {
 
 # Movie & Movie_detail 객체 생성
 def create_objects_movie_movie_detail():
-    for index, movie_data in enumerate(movie_urls.items()):
-        # print(data[index]['title'], data[index]['age'], data[index]['booking_rate'], data[index]['type'],
-        #       data[index]['release_date'], data[index]['img_url'], data[index]['director'], data[index]['cast'],
-        #       data[index]['running_time'])
-        # print(data[index]['img_url'])
-        Movie.objects.create(title=data[index]['title'], age=data[index]['age'],
-                             type=data[index]['type'],
-                             booking_rate=data[index]['booking_rate'], release_date=data[index]['release_date'],
-                             img_url=data[index]['img_url'])
-        Movie_detail.objects.create(movie_id=data[index]['id'], director=data[index]['director'],
-                                    cast=data[index]['cast'], genre=data[index]['genre'],
-                                    running_time=data[index]['running_time'])
+    data = movie_urls.items()
+    print(data)
+
+    # for index, movie_data in enumerate(movie_urls.items()):
+    #     # print(data[index]['title'], data[index]['age'], data[index]['booking_rate'], data[index]['type'],
+    #     #       data[index]['release_date'], data[index]['img_url'], data[index]['director'], data[index]['cast'],
+    #     #       data[index]['running_time'])
+    #     # print(data[index]['img_url'])
+    #     Movie.objects.create(title=data[index]['title'], age=data[index]['age'],
+    #                          type=data[index]['type'],
+    #                          booking_rate=data[index]['booking_rate'], release_date=data[index]['release_date'],
+    #                          img_url=data[index]['img_url'])
+    #     Movie_detail.objects.create(movie_id=data[index]['id'], director=data[index]['director'],
+    #                                 cast=data[index]['cast'], genre=data[index]['genre'],
+    #                                 running_time=data[index]['running_time'])
 
 
 # Screen 객체 생성
