@@ -8,13 +8,18 @@ AGE_RATE = (
     (3, '청소년 관람불가'),
 )
 TYPE = (
-    (0, '디지털'),
+    (0, 'Digital'),
     (1, '3D'),
     (2, '4D'),
-)
-SUB_TYPE = (
-    (0, '(자막)'),
-    (1, '(더빙)')
+    (3, 'ATMOS'),
+    (4, 'Digital(자막)'),
+    (5, '3D(자막)'),
+    (6, '4D(자막)'),
+    (7, 'ATMOS(자막)'),
+    (8, 'Digital(더빙)'),
+    (9, '3D(더빙)'),
+    (10, '4D(더빙)'),
+    (11, 'ATMOS(더빙)'),
 )
 
 
@@ -67,7 +72,7 @@ class Movie(models.Model):
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
-    sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
+    # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
     def __str__(self):
         return self.title

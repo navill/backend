@@ -16,14 +16,12 @@ from .serializers import *
                      responses={200: GetReservationFirstStepSerializer(many=True)}, operation_id='reservationFirstView',
                      operation_description="예매 첫 번째 스텝에서 영화 전체 목록 출력 때 응답되는 변수들입니다.")
 # manual_parameters=[theater_param, movie_title_param, date_param],
-@api_view(['POST', 'GET'])
+@api_view(['GET'])
 def reservationFirstView(request):
     # 극장
     theater_list = request.GET.get('theater', None)  # list type
-    print(theater_list)
     # 영화 타이틀
     movie_title = request.GET.get('movie', None)  # list type
-    print(movie_title)
     # 상영 날짜
     date = request.GET.get('date', None)  # -> 2019-07-06
     # get 형식이라면~
