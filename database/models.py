@@ -15,7 +15,6 @@ TYPE = (
     (3, 'Digital'),
 )
 
-
 # Create your models here.
 
 # class Region(models.Model):

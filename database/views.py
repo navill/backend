@@ -109,16 +109,13 @@ def reservationSecondView(request):
             selected_schedule.save()
             # save Seat table
             selected_schedule.schedule_time_seat.save()
-            # bookingHistory(request, selected_schedule, seat_number, price)  # 예매 내역에 저장
+            bookingHistory(request, selected_schedule, seat_number)  # 예매 내역에 저장
             serializer = Return_200(selected_schedule)
             return Response(serializer.data)
         else:
             serializer = Return_error(selected_schedule)
             return Response(serializer.data)
 
-@swagger_auto_schema(method='post', request_body=ReservationSecondStepSerializer,
-                     responses={200: Return_200, 404: Return_404}, operation_id='reservationSecondView',
-                     operation_description="예매 두 번째 스텝에서 좌석 및 선택한 영화의 정보들을 서버에 넘길 변수들입니다.", )
 def bookingHistory(request, selected_schedule, seat_number):
     BookingHistory.objects.create(
         user=request.user,
@@ -129,3 +126,14 @@ def bookingHistory(request, selected_schedule, seat_number):
         date=selected_schedule.date_id
     )
 
+# def myPageView(request):
+#     # 1. 로그인한 유저 비교 (토큰)
+#     # 2. 로그인한 유저 정보 뿌리기
+#     if not request.user:
+#         serializer = Return_error('1')
+#         return Response(serializers.data)
+#     else:
+#         obj = BookingHistory.objects.get(user=request.user)
+#         email = obj.email
+#
+#         return
