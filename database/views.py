@@ -9,36 +9,31 @@ from drf_yasg.utils import swagger_auto_schema
 from .serializers import *
 
 
-@swagger_auto_schema(method='post', request_body=QuerySerializer,
-                     responses={200: ReservationFirstStepSerializer(many=True)}, operation_id='reservationFirstView',
-                     operation_description="예매 첫 번째 스텝에서 사용자에게 입력 받는 변수들과 응답되는 변수들입니다.")
 @swagger_auto_schema(method='get',
                      responses={200: GetReservationFirstStepSerializer(many=True)}, operation_id='reservationFirstView',
                      operation_description="예매 첫 번째 스텝에서 영화 전체 목록 출력 때 응답되는 변수들입니다.")
 # manual_parameters=[theater_param, movie_title_param, date_param],
-@api_view(['POST', 'GET'])
+@api_view(['GET'])
 def reservationFirstView(request):
     # 극장
-    theaters = request.POST.getlist('theater', None)
+    theater_list = request.GET.get('theater', None)  # list type
     # 영화 타이틀
-    movie_title = request.POST.getlist('movie', None)
+    movie_title = request.GET.get('movie', None)  # list type
     # 상영 날짜
-    date = request.POST.get('date', None)
-
+    date = request.GET.get('date', None)  # -> 2019-07-06
     # get 형식이라면~
-    if request.method == "GET":
-        movie = Movie.objects.all().order_by('-release_date')  # 최신 개봉일 순으로 정렬
-        serializer = GetReservationFirstStepSerializer(movie, many=True)
-
-    # post 형식이라면~
-    elif request.method == "POST":
+    if theater_list and date:  # get_queryset에 세 가지 중 두 가지(theater, date) 있을 경우
+        theaters = theater_list.split('_')
         my_filter_qs = Q()
         for theater in theaters:
             my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
-        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=date).order_by('movie_id', 'start_time')  # 날짜, 시간 순으로 정렬
+        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=date).order_by('string_date',
+                                                                                                       'start_time')  # 날짜, 시간 순으로 정렬
+        # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
 
         # 영화를 선택했다면
-        if movie_title:
+        if movie_title:  # get_queryset에 영화가 포함되어 있을 경우(세 변수 모두 포함) -> 극장에서 상영중인 영화 리스트 출력
+            movie_title = movie_title.split('_')
             my_filter_qs = Q()
             for movie in movie_title:
                 my_filter_qs = my_filter_qs | Q(movie_id__title=movie)
@@ -51,16 +46,19 @@ def reservationFirstView(request):
                 # 아래의 함수는 사용자가 좌석을 입력했을 때 실행해야한다.
                 e.numbering_seat_count(e.seat_count)
                 e.save()
-
                 # print(e.id, e.movie_id, e.start_time, e.date_id_id, e.movie_id_id, "seat count:", e.seat_count,
                 #       e.schedule_time_seat.seat_number)
-
             serializer = ReservationFirstStepSerializer(queryset, many=True)
+            return Response(serializer.data)
         else:
             serializer = ReservationFirstStepSerializer(movie_schedules, many=True)
+            return Response(serializer.data)
 
-    print(type(serializer.data))
-    return Response(serializer.data)
+    # elif movie_title:  # GET query_set이 없을 경우 : 모든 영화 리스트 출력
+    if not (theater_list or movie_title or date):
+        movie = Movie.objects.all().order_by('-booking_rate')  # 예매율 순으로 정렬됨
+        serializer = GetReservationFirstStepSerializer(movie, many=True)
+        return Response(serializer.data)
 
 
 @swagger_auto_schema(method='post', request_body=ReservationSecondStepSerializer,
@@ -76,7 +74,6 @@ def reservationSecondView(request):
     price = request.POST.get('price', None)
     # 예매된 좌석 수
     st_count = request.POST.get('st_count', None)
-
 
     if not schedule_id:
         serializer = Return_error(1)
