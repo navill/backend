@@ -9,10 +9,18 @@ AGE_RATE = (
     (3, '청소년 관람불가'),
 )
 TYPE = (
-    (0, '2D'),
+    (0, 'Digital'),
     (1, '3D'),
     (2, '4D'),
-    (3, 'Digital'),
+    (3, 'ATMOS'),
+    (4, 'Digital(자막)'),
+    (5, '3D(자막)'),
+    (6, '4D(자막)'),
+    (7, 'ATMOS(자막)'),
+    (8, 'Digital(더빙)'),
+    (9, '3D(더빙)'),
+    (10, '4D(더빙)'),
+    (11, 'ATMOS(더빙)'),
 )
 
 
@@ -44,6 +52,7 @@ class Screen(models.Model):
     cinema_id = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name="cinema_id")
     screen_number = models.IntegerField()
     total_seat = models.IntegerField()
+
     # type = MultiSelectField(choices=TYPE, max_choices=4)
 
     class Meta:
@@ -63,7 +72,9 @@ class Movie(models.Model):
     title = models.CharField(max_length=100)
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
-    type = MultiSelectField(choices=TYPE, max_choices=4)
+    type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
+
+    # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
     def __str__(self):
         return self.title
@@ -106,6 +117,8 @@ class Schedule_time(models.Model):
     # available_seat = models.BooleanField(default=True)  # screen_id.total_seat - seat_count =>매진 여부
     start_time = models.TimeField()  # start_time + movie.running_time = end_time
     string_date = models.CharField(max_length=15, editable=False)
+    # 임시로 character field로 저장되기 위해 사용됨
+    type = models.CharField(max_length=15, null=True)
 
     class Meta:
         ordering = ['start_time']
@@ -135,7 +148,8 @@ class Schedule_time(models.Model):
 
 
 class Seat(models.Model):
-    schedule_time = models.OneToOneField(Schedule_time, on_delete=models.CASCADE, related_name='schedule_time_seat', primary_key=True)
+    schedule_time = models.OneToOneField(Schedule_time, on_delete=models.CASCADE, related_name='schedule_time_seat',
+                                         primary_key=True)
     # screen_id = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screen_id_seat', null=True)
     seat_number = models.TextField(blank=True, default='')
 
@@ -145,6 +159,7 @@ class Seat(models.Model):
         self.schedule_time.save()
         super(Seat, self).save(*args, **kwargs)
 
+
 class BookingHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')  # 예매한 유저
     bookingNumber = models.CharField(editable=False, max_length=200, unique=True)  # 예매 번호, 랜덤하게 생성되며 유일한 값을 가짐
@@ -153,5 +168,3 @@ class BookingHistory(models.Model):
     seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
     date = models.ForeignKey(Schedule_date, on_delete=models.CASCADE, related_name='dates')  # 날짜, 시간
     booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간
-
-
