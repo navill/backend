@@ -1,5 +1,6 @@
 from django.db import models
 from multiselectfield import MultiSelectField
+from accounts.models import User
 
 AGE_RATE = (
     (0, '전체 관람'),
@@ -72,6 +73,7 @@ class Movie(models.Model):
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
+
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
     def __str__(self):
@@ -115,6 +117,8 @@ class Schedule_time(models.Model):
     # available_seat = models.BooleanField(default=True)  # screen_id.total_seat - seat_count =>매진 여부
     start_time = models.TimeField()  # start_time + movie.running_time = end_time
     string_date = models.CharField(max_length=15, editable=False)
+    # 임시로 character field로 저장되기 위해 사용됨
+    type = models.CharField(max_length=15, null=True)
 
     class Meta:
         ordering = ['start_time']
@@ -154,3 +158,13 @@ class Seat(models.Model):
         self.schedule_time.seat_count = seat_count
         self.schedule_time.save()
         super(Seat, self).save(*args, **kwargs)
+
+
+class BookingHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')  # 예매한 유저
+    bookingNumber = models.CharField(editable=False, max_length=200, unique=True)  # 예매 번호, 랜덤하게 생성되며 유일한 값을 가짐
+    movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="movie_id_booking")  # 영화 타이틀
+    screen = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screens')  # 지점, 상영관,
+    seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
+    date = models.ForeignKey(Schedule_date, on_delete=models.CASCADE, related_name='dates')  # 날짜, 시간
+    booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간

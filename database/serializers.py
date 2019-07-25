@@ -1,6 +1,9 @@
 from drf_yasg.utils import swagger_serializer_method
-from rest_framework import serializers, fields
-from rest_framework.serializers import ListSerializer
+# <<<<<<< HEAD
+# from rest_framework import serializers, fields
+# from rest_framework.serializers import ListSerializer
+# =======
+from rest_framework import serializers
 
 from .models import *
 
@@ -67,6 +70,24 @@ class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
     # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
 
 
+from rest_framework.fields import ListField
+
+
+class StringArrayField(ListField):
+    """
+    String representation of an array field.
+    """
+
+    def to_representation(self, obj):
+        myStr = str(obj).replace(', ', ',')
+        myList = myStr.split(",")
+        return myList
+
+    def to_internal_value(self, data):
+        data = data.split(",")  # convert string to list
+        return super().to_internal_value(self, data)
+
+
 class ReservationFirstStepSerializer(serializers.ModelSerializer):
     schedule_id = serializers.IntegerField(source='id')  # 사용자가 관람할(선택한) 영화의 스케줄 id
     theater = serializers.CharField(source='date_id.screen_id.cinema_id.cinema_name')  # 지점
@@ -74,18 +95,16 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
     # date = serializers.DateField(source='date_id.date')  # 날짜
     date = serializers.CharField(source='string_date')  # 2019 11 1 vs 2019 1 12
     movie = serializers.CharField(source='movie_id.title')  # 영화
-    # type = serializers.IntegerField(source='movie_id.type')  # 타입
-
+    # type = StringArrayField(source='movie_id.type')  # 타입
+    type_ = serializers.CharField(source='type')
     total_seat = serializers.IntegerField(source='date_id.screen_id.total_seat')  # 총좌석 수
     st_count = serializers.IntegerField(source='seat_count')  # 예매된 좌석 수
-    # seat_number = serializers.CharField(source='schedule_time_seat.seat_number')  # 예매된 좌석 번호(배열)
-    seat_number = serializers.ListField(source='schedule_time_seat.seat_number', default=[],
-                                        child=serializers.CharField(max_length=500))
+    seat_number = StringArrayField(source='schedule_time_seat.seat_number')  # 예매된 좌석 번호(배열)
 
     class Meta:
         model = Schedule_time
         fields = (
-            'schedule_id', 'theater', 'screen', 'date', 'start_time', 'movie',
+            'schedule_id', 'theater', 'screen', 'date', 'start_time', 'movie', 'type_',
             'st_count', 'total_seat', 'seat_number')
 
     @swagger_serializer_method(serializer_or_field=serializers.CharField)
@@ -121,3 +140,7 @@ class Return_200(serializers.Serializer):
 
 class Return_404(serializers.Serializer):
     error = serializers.CharField(allow_blank=True, required=False, default='404 Not Found')
+
+
+class Return_error(serializers.Serializer):
+    error = serializers.CharField(allow_blank=True, required=False, default='필요한 요청이 충분하지 않습니다.')

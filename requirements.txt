@@ -18,6 +18,7 @@ django-multiselectfield==0.1.8
 django-rest-swagger==2.1.2
 django-storages==1.7.1
 djangorestframework==3.9.4
+djangorestframework-jwt==1.11.0
 docutils==0.14
 drf-yasg==1.16.0
 elasticsearch==6.4.0
@@ -44,6 +45,7 @@ powerline-status==2.7
 protobuf==3.7.1
 psycopg2-binary==2.8.3
 pygraphviz==1.5
+PyJWT==1.7.1
 pylint==2.3.1
 python-dateutil==2.8.0
 python3-openid==3.1.0
