@@ -3,10 +3,12 @@ from .models import *
 
 # Create your views here.
 
+from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from .serializers import *
+
 
 
 @swagger_auto_schema(method='get',
@@ -64,18 +66,21 @@ def reservationFirstView(request):
 @swagger_auto_schema(method='post', request_body=ReservationSecondStepSerializer,
                      responses={200: Return_200, 404: Return_404}, operation_id='reservationSecondView',
                      operation_description="예매 두 번째 스텝에서 좌석 및 선택한 영화의 정보들을 서버에 넘길 변수들입니다.", )
+
+# class ReservationSecondView(generics.ListCreateAPIView):
+
+
 @api_view(['POST'])
 def reservationSecondView(request):
     # 사용자가 관람할(선택한) 영화의 스케줄 id
-    schedule_id = request.POST.get('schedule_id', None)
-    # 예매된 좌석 번호(배열)
-    seat_number = request.POST.get('seat_number', None)
-    # 영화의 가격
-    price = request.POST.get('price', None)
-    # 예매된 좌석 수
-    st_count = request.POST.get('st_count', None)
+    booking_data = request.data
+    # print(booking_data)
+    # print(booking_data['schedule_id'])
+    # print(booking_data['seat_number'])
+    # print(booking_data['price'])
+    # print(booking_data['st_count'])
 
-    if not schedule_id:
+    if not booking_data['schedule_id']:
         serializer = Return_error(1)
         return Response(serializer.data)
 
@@ -83,18 +88,19 @@ def reservationSecondView(request):
     # 아래의 코드는 Post.get(st_count)를 사용하지 않음 -> 기존 seat_number의 배열 수로 계산해서 처리함
     if request.method == "POST":
         selected_schedule = Schedule_time.objects.get(
-            id=schedule_id)  # .update(seat_number=seat_number, schedule_time_seat__seat_number=seat_number)
+            id=booking_data['schedule_id'])  # .update(seat_number=seat_number, schedule_time_seat__seat_number=seat_number)
         # 예약 되어있는 좌석 리스트
         booked_seat_numbers = selected_schedule.schedule_time_seat.seat_number
         # print(booked_seat_numbers)
         # seat_number, booked_list.split() : 클라이언트로부터 넘어온 str data -> list data로 변환
         booked_list = booked_seat_numbers.split(',')
-        if seat_number:
-            seat_number = seat_number.split(',')
-            for seat in seat_number:
+        print(booked_list)
+        if booking_data['seat_number']:
+            for seat in booking_data['seat_number']:
                 if seat not in booked_list:
                     booked_list.append(seat)
             booked_list.sort()
+            # 좌석 list -> string 좌석 list로 변환
             update_seat = ','.join(booked_list)
             # update된 좌석 수
             st_count = len(booked_list)
@@ -108,6 +114,7 @@ def reservationSecondView(request):
             selected_schedule.schedule_time_seat.save()
             # bookingHistory(request, selected_schedule, seat_number, price)  # 예매 내역에 저장
             serializer = Return_200(selected_schedule)
+            print(booked_seat_numbers)
             return Response(serializer.data)
         else:
             serializer = Return_error(selected_schedule)
