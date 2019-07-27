@@ -10,7 +10,6 @@ from drf_yasg.utils import swagger_auto_schema
 from .serializers import *
 
 
-
 @swagger_auto_schema(method='get',
                      responses={200: GetReservationFirstStepSerializer(many=True)}, operation_id='reservationFirstView',
                      operation_description="예매 첫 번째 스텝에서 영화 전체 목록 출력 때 응답되는 변수들입니다.")
@@ -23,6 +22,13 @@ def reservationFirstView(request):
     movie_title = request.GET.get('movie', None)  # list type
     # 상영 날짜
     date = request.GET.get('date', None)  # -> 2019-07-06
+
+    # 쿼리 하나에 값을 3개 이상 받지 않음.
+    # 3개 이상 입력 받을 시 에러를 반환
+    if (theater_list != None and theater_list.count('_') > 2) or (movie_title != None and movie_title.count('_') > 2) :
+        serializer = Return_error('1')
+        return Response(serializer.data)
+
     # get 형식이라면~
     if theater_list and date:  # get_queryset에 세 가지 중 두 가지(theater, date) 있을 경우
         theaters = theater_list.split('_')
@@ -91,10 +97,11 @@ def reservationSecondView(request):
             id=booking_data['schedule_id'])  # .update(seat_number=seat_number, schedule_time_seat__seat_number=seat_number)
         # 예약 되어있는 좌석 리스트
         booked_seat_numbers = selected_schedule.schedule_time_seat.seat_number
-        # print(booked_seat_numbers)
+        # print('booked_seat_numbers:', booked_seat_numbers)
         # seat_number, booked_list.split() : 클라이언트로부터 넘어온 str data -> list data로 변환
         booked_list = booked_seat_numbers.split(',')
-        print(booked_list)
+        # print('booked_list:', booked_list)
+        # print("booking_data['seat_number']:", booking_data['seat_number'])
         if booking_data['seat_number']:
             for seat in booking_data['seat_number']:
                 if seat not in booked_list:
@@ -112,23 +119,40 @@ def reservationSecondView(request):
             selected_schedule.save()
             # save Seat table
             selected_schedule.schedule_time_seat.save()
-            bookingHistory(request, selected_schedule, seat_number)  # 예매 내역에 저장
+            seat_numbers = ','.join(booking_data['seat_number'])
+            bookingHistory(request, selected_schedule, seat_numbers)  # 예매 내역에 저장
+
             serializer = Return_200(selected_schedule)
-            print(booked_seat_numbers)
+            # print(booked_seat_numbers)
             return Response(serializer.data)
         else:
             serializer = Return_error(selected_schedule)
             return Response(serializer.data)
 
-def bookingHistory(request, selected_schedule, seat_number):
+def bookingHistory(request, selected_schedule, seat_numbers):
     BookingHistory.objects.create(
+        booking_number='123T-12CS-5S92',
         user=request.user,
-        bookingNumber=123,
-        movie_id=selected_schedule.movie_id,
-        screen=selected_schedule.movie_id.screen_id,
-        seat_number=seat_number,
-        date=selected_schedule.date_id
+        schedule_id=selected_schedule,
+        seat_number=seat_numbers,
     )
+
+@swagger_auto_schema(method='get', operation_id='bookingHistoryView',
+                     operation_description="부킹부킹", )
+@api_view(['GET'])
+def bookingHistoryView(request):
+    myUser = request.user
+    print('myUser: ', myUser)
+
+    if not myUser:
+        serializer = Return_error('1')
+        return Response(serializer.data)
+    else:
+        print(':::::::::::::::::::::::::::::::::::::::::')
+        queryset = BookingHistory.objects.get(user=myUser)
+        print('queryset: ', queryset)
+        serializer = BookingHistorySerializer(queryset)
+        return Response(serializer.data)
 
 # def myPageView(request):
 #     # 1. 로그인한 유저 비교 (토큰)

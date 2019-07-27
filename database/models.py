@@ -79,6 +79,8 @@ class Movie(models.Model):
         return self.title
 
 
+
+
 class Movie_detail(models.Model):
     movie = models.OneToOneField(Movie, on_delete=models.CASCADE, related_name='movie_id_detail')
     running_time = models.IntegerField()
@@ -138,8 +140,8 @@ class Schedule_time(models.Model):
             self.date_id.save()
         super(Schedule_time, self).save(*args, **kwargs)
 
-    def get_type_display(self):
-        return self.movie_id.get_type_display()
+    def get_age_display(self):
+        return self.movie_id.get_age_display()
 
     def __str__(self):
         return f"지점 : {self.date_id.screen_id.cinema_id.cinema_name}(screen:{self.date_id.screen_id.screen_number}), 상영일자: {self.date_id.date}, 시간: {self.start_time}" \
@@ -160,10 +162,9 @@ class Seat(models.Model):
 
 
 class BookingHistory(models.Model):
+    booking_number = models.CharField(editable=False, max_length=50, primary_key=True)  # 예매 번호, 랜덤하게 생성
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')  # 예매한 유저
-    bookingNumber = models.CharField(editable=False, max_length=200, unique=True)  # 예매 번호, 랜덤하게 생성되며 유일한 값을 가짐
-    movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="movie_id_booking")  # 영화 타이틀
-    screen = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screens')  # 지점, 상영관,
+    schedule_id = models.ForeignKey(Schedule_time, on_delete=models.SET_NULL, null=True)  # 예매한 영화 스케줄
     seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
-    date = models.ForeignKey(Schedule_date, on_delete=models.CASCADE, related_name='dates')  # 날짜, 시간
     booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간
+    canceled = models.BooleanField(default=False)  # 예매 취소 여부
