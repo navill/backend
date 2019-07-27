@@ -142,7 +142,6 @@ def bookingHistory(request, selected_schedule, seat_numbers):
 @api_view(['GET'])
 def bookingHistoryView(request):
     myUser = request.user
-    print('myUser: ', myUser)
 
     if not myUser:
         serializer = Return_error('1')

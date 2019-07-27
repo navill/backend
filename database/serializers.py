@@ -61,9 +61,9 @@ class MovieSerializer(serializers.ModelSerializer):
 class TypeChoicesSerializerField(serializers.SerializerMethodField):
     def to_representation(self, value):
         # sample: 'get_XXXX_display'
-        get_type_display = str('get_type_display'.format(field_name=self.field_name))
+        # get_type_display = str('get_type_display'.format(field_name=self.field_name))
         # retrieve instance method
-        method = getattr(value, get_type_display)
+        method = getattr(value, 'get_type_display')
         # finally use instance method to return result of get_XXXX_display()
         list_ = method().replace(', ',',').split(',')
         temp_list = list()
@@ -80,7 +80,7 @@ class TypeChoicesSerializerField(serializers.SerializerMethodField):
 
 class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
     movie_id = serializers.IntegerField(source='id')  # 영화 id
-    age = serializers.ChoiceField(choices=AGE_RATE,
+    age = serializers.CharField(source='get_age_display',
                                   help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
     # type = StringArrayField(source='get_type_display')  # 타입
     # type = serializers.MultipleChoiceField(choices=TYPE,
@@ -91,9 +91,6 @@ class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Movie
         fields = ('movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'type', 'selected')
-
-    def get_type(self, obj):
-        return obj
 
     # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
 
@@ -112,7 +109,7 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
     theater = serializers.CharField(source='date_id.screen_id.cinema_id.cinema_name')  # 지점
     screen = serializers.IntegerField(source='date_id.screen_id.screen_number')  # 상영관
     # date = serializers.DateField(source='date_id.date')  # 날짜
-    date = serializers.CharField(source='string_date')  # 2019 11 1 vs 2019 1 12
+    date = serializers.CharField(source='date_id.date')  # 2019 11 1 vs 2019 1 12
     show_time = StartTimeSerializerField(source='start_time')  # 상영 시간
     movie = serializers.CharField(source='movie_id.title')  # 영화
     type = TypeChoicesSerializerField(source='type')  # 타입
@@ -124,12 +121,12 @@ class ReservationFirstStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule_time
         fields = (
-            'schedule_id', 'theater', 'screen', 'date', 'start_time', 'movie', 'type',
-            'st_count', 'total_seat', 'seat_number')
+            'schedule_id', 'theater', 'screen', 'date', 'show_time', 'movie', 'type',
+            'st_count', 'total_seat', 'seat_number', 'age')
 
-    @swagger_serializer_method(serializer_or_field=serializers.CharField)
-    def get_type_name(self, obj):
-        return TypeChoicesSerializerField().data
+    # @swagger_serializer_method(serializer_or_field=serializers.CharField)
+    # def get_type_name(self, obj):
+    #     return TypeChoicesSerializerField().data
 
 
 class QuerySerializer(serializers.ModelSerializer):
