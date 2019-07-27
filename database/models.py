@@ -9,18 +9,12 @@ AGE_RATE = (
     (3, '청소년 관람불가'),
 )
 TYPE = (
-    (0, 'Digital'),
+    (0, '디지털'),
     (1, '3D'),
     (2, '4D'),
     (3, 'ATMOS'),
-    (4, 'Digital(자막)'),
-    (5, '3D(자막)'),
-    (6, '4D(자막)'),
-    (7, 'ATMOS(자막)'),
-    (8, 'Digital(더빙)'),
-    (9, '3D(더빙)'),
-    (10, '4D(더빙)'),
-    (11, 'ATMOS(더빙)'),
+    (4, '자막'),
+    (5, '더빙'),
 )
 
 # Create your models here.
@@ -117,7 +111,7 @@ class Schedule_time(models.Model):
     seat_count = models.IntegerField(editable=False, default=0)  # 예매된 좌석의 수- Screen의 total_seat와 연산되어져야 한다.
     # available_seat = models.BooleanField(default=True)  # screen_id.total_seat - seat_count =>매진 여부
     start_time = models.TimeField()  # start_time + movie.running_time = end_time
-    string_date = models.CharField(max_length=15, editable=False)
+    date = models.DateField()
     # 임시로 character field로 저장되기 위해 사용됨
     type = models.CharField(max_length=15, null=True)
 
@@ -130,15 +124,15 @@ class Schedule_time(models.Model):
     def numbering_seat_count(self, length_count_list):
         self.seat_count = length_count_list
 
-    def save(self, *args, **kwargs):
-        # convert date to string 
-        if not self.string_date:
-            splited_date = list(map(int, str(self.date_id.date).split('-')))
-            str_list_date = [str(a) for a in splited_date]
-            str_date = ''.join(str_list_date)
-            self.string_date = str_date
-            self.date_id.save()
-        super(Schedule_time, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     # convert date to string
+    #     if not self.string_date:
+    #         splited_date = list(map(int, str(self.date_id.date).split('-')))
+    #         str_list_date = [str(a) for a in splited_date]
+    #         str_date = ''.join(str_list_date)
+    #         self.string_date = str_date
+    #         self.date_id.save()
+    #     super(Schedule_time, self).save(*args, **kwargs)
 
     def get_age_display(self):
         return self.movie_id.get_age_display()

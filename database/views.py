@@ -35,7 +35,7 @@ def reservationFirstView(request):
         my_filter_qs = Q()
         for theater in theaters:
             my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
-        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date__gte=date).order_by('string_date',
+        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date=date).order_by('date',
                                                                                                        'start_time')  # 날짜, 시간 순으로 정렬
         # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
 
@@ -46,7 +46,7 @@ def reservationFirstView(request):
             for movie in movie_title:
                 my_filter_qs = my_filter_qs | Q(movie_id__title=movie)
 
-            queryset = movie_schedules.filter(my_filter_qs, date_id__date__gte=date).select_related(
+            queryset = movie_schedules.filter(my_filter_qs, date_id__date=date).select_related(
                 'schedule_time_seat')
             for i in queryset:
                 e = queryset.select_related('schedule_time_seat').get(id=i.id)
