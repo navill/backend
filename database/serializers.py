@@ -1,8 +1,6 @@
 from drf_yasg.utils import swagger_serializer_method
-# <<<<<<< HEAD
 # from rest_framework import serializers, fields
 # from rest_framework.serializers import ListSerializer
-# =======
 from rest_framework import serializers
 
 from .models import *
@@ -20,6 +18,7 @@ class StringArrayField(ListField):
     """
     String representation of an array field.
     """
+
     def to_representation(self, obj):
         myStr = str(obj).replace(', ', ',')
         myList = myStr.split(",")
@@ -63,11 +62,11 @@ class MovieSerializer(serializers.ModelSerializer):
 class TypeChoicesSerializerField(serializers.SerializerMethodField):
     def to_representation(self, value):
         # sample: 'get_XXXX_display'
-        get_type_display = str('get_type_display'.format(field_name=self.field_name))
+        # get_type_display = str('get_type_display'.format(field_name=self.field_name))
         # retrieve instance method
-        method = getattr(value, get_type_display)
+        method = getattr(value, 'get_type_display')
         # finally use instance method to return result of get_XXXX_display()
-        list_ = method().replace(', ',',').split(',')
+        list_ = method().replace(', ', ',').split(',')
         temp_list = list()
         if ('자막' or '더빙') in list_:
             for i in range(0, len(list_), 2):
@@ -76,7 +75,7 @@ class TypeChoicesSerializerField(serializers.SerializerMethodField):
             # print(type_result)
         else:
             for i in range(0, len(list_)):
-                temp_list.append(list_[i:i+1])
+                temp_list.append(list_[i:i + 1])
         return temp_list
 
 
