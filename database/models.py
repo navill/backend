@@ -66,13 +66,12 @@ class Movie(models.Model):
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
+    movie_detail_id = models.ForeignKey('Movie_detail', on_delete=models.CASCADE, related_name='details', null=True)
 
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
     def __str__(self):
         return self.title
-
-
 
 
 class Movie_detail(models.Model):
@@ -82,6 +81,9 @@ class Movie_detail(models.Model):
     director = models.CharField(max_length=15)
     cast = models.TextField()
     genre = models.TextField()
+
+    def __str__(self):
+        return f"info: {self.movie.title}"
 
 
 class Schedule_date(models.Model):
@@ -113,7 +115,8 @@ class Schedule_time(models.Model):
     start_time = models.TimeField()  # start_time + movie.running_time = end_time
     date = models.DateField()
     # 임시로 character field로 저장되기 위해 사용됨
-    type = models.CharField(max_length=15, null=True)
+    # type = models.CharField(max_length=15, null=True)
+    type = MultiSelectField(choices=TYPE, max_choices=2, max_length=50, null=True)
 
     class Meta:
         ordering = ['start_time']
@@ -136,9 +139,6 @@ class Schedule_time(models.Model):
 
     def get_age_display(self):
         return self.movie_id.get_age_display()
-
-    def get_type_display(self):
-        return self.movie_id.get_type_display()
 
     def __str__(self):
         return f"지점 : {self.date_id.screen_id.cinema_id.cinema_name}(screen:{self.date_id.screen_id.screen_number}), 상영일자: {self.date_id.date}, 시간: {self.start_time}" \

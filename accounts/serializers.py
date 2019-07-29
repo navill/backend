@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import User
@@ -10,11 +11,11 @@ class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 �
                   'wishMovie']
 
 
-class UserListSerializer(serializers.ModelSerializer):  # 유저 목록 출력을 위한 시리얼 라이저
-    class Meta:
-        model = get_user_model()
-        fields = ['id', 'email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
-                  'wishMovie']
+# class UserListSerializer(serializers.ModelSerializer):  # 유저 목록 출력을 위한 시리얼 라이저
+#     class Meta:
+#         model = get_user_model()
+#         fields = ['id', 'email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
+#                   'wishMovie']
 
 
 # 회원 가입 할 때 필요한 필드들에 관한 시리얼라이저
@@ -24,7 +25,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ['email', 'password', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
                   'wishMovie']
-        # fields = '__all__'
 
     # password 암호화 = 회원가입 기능 실행 시 리스트 목록에 password 암호화 되어 나타남
     def create(self, validated_data):

@@ -197,9 +197,9 @@ JWT_AUTH = {
     'JWT_SECRET_KEY': SECRET_KEY,
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'config.jwt.jwt_response_payload_handler',
     'JWT_ALGORITHM': 'HS256',
-    'JWT_ALLOW_REFRESH': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=28),
+    'JWT_ALLOW_REFRESH': True,  # Token Refresh 가능 여부
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),  # Token 만료시간
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=3),  # Token Refresh 가능 시간
 }
 
 SWAGGER_SETTINGS = {

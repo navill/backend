@@ -28,7 +28,10 @@ urlpatterns = [
     # path('MovieList/', MovieListView.as_view()),
     # path('MovieDetail/<int:pk>', MovieDetailView.as_view()),
 
-    path('reservationFirstView/', reservationFirstView),
+    # path('reservationFirstView/', reservationFirstView), # 뷰 나누기 전 원본 url 남기기
+    path('showMovies/', showMoviesView),
+    path('reservationScheduleList/', reservationScheduleListView),
     path('reservationSecondView/', reservationSecondView),
     path('bookingHistoryView/', bookingHistoryView),
 ]
+
