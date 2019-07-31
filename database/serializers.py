@@ -1,67 +1,35 @@
+<<<<<<< HEAD
 from drf_yasg.utils import swagger_serializer_method
 # from rest_framework import serializers, fields
 # from rest_framework.serializers import ListSerializer
+=======
+from rest_framework.fields import ListField
+>>>>>>> upstream/develop
 from rest_framework import serializers
 
 from .models import *
 
-#
-# class RegionSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Region
-#         fields = '__all__'
-
-from rest_framework.fields import ListField
-
 
 class StringArrayField(ListField):
-    """
-    String representation of an array field.
-    """
     def to_representation(self, obj):
-        myStr = str(obj).replace(', ', ',')
-        myList = myStr.split(",")
-        return myList
-
-    # def to_internal_value(self, data):
-    #     data = data.split(",")  # convert string to list
-    #     return super().to_internal_value(self, data)
+        list_ = str(obj).replace(', ', ',').split(",")
+        return list_
 
 
-class ScreenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Screen
-        fields = '__all__'
-
-
-class Schedule_timeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Schedule_time
-        fields = '__all__'
-
-
-class Schedule_dateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Schedule_date
-        fields = '__all__'
-
-
-class CinemaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cinema
-        fields = '__all__'
-
-
-class MovieSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Movie
-        fields = '__all__'
-
-
-class TypeChoicesSerializerField(serializers.SerializerMethodField):
+class TypesArrayField(ListField):
     def to_representation(self, value):
+<<<<<<< HEAD
         method = getattr(value, 'get_type_display')
         list_ = method().replace(', ', ',').split(',')
+=======
+        # sample: 'get_XXXX_display'
+        # get_type_display = str('get_type_display'.format(field_name=self.field_name))
+        # retrieve instance method
+        # method = getattr(value, 'get_type')
+        # finally use instance method to return result of get_XXXX_display()
+        list_ = str(value).replace(', ', ',').split(',')
+        # list_ = value.get_type_display().replace(', ', ',').split(',')
+>>>>>>> upstream/develop
         temp_list = list()
         if ('자막' or '더빙') in list_:
             for i in range(0, len(list_), 2):
@@ -72,40 +40,14 @@ class TypeChoicesSerializerField(serializers.SerializerMethodField):
         return temp_list
 
 
+<<<<<<< HEAD
 class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
     movie_id = serializers.IntegerField(source='id')  # 영화 id
     age = serializers.ChoiceField(choices=AGE_RATE,
                                   help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
     type = TypeChoicesSerializerField(source='type')
     selected = serializers.BooleanField(default=False)
-
-    class Meta:
-        model = Movie
-        fields = ('movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'type', 'selected')
-
-
-class ReservationFirstStepSerializer(serializers.ModelSerializer):
-    schedule_id = serializers.IntegerField(source='id')  # 사용자가 관람할(선택한) 영화의 스케줄 id
-    theater = serializers.CharField(source='date_id.screen_id.cinema_id.cinema_name')  # 지점
-    screen = serializers.IntegerField(source='date_id.screen_id.screen_number')  # 상영관
-    date = serializers.DateField(source='date_id.date')
-    movie = serializers.CharField(source='movie_id.title')  # 영화
-    type = TypeChoicesSerializerField(source='type')  # 타입
-    total_seat = serializers.IntegerField(source='date_id.screen_id.total_seat')  # 총좌석 수
-    st_count = serializers.IntegerField(source='seat_count')  # 예매된 좌석 수
-    seat_number = StringArrayField(source='schedule_time_seat.seat_number')  # 예매된 좌석 번호(배열)
-
-    class Meta:
-        model = Schedule_time
-        fields = (
-            'schedule_id', 'theater', 'screen', 'date', 'start_time', 'movie', 'type',
-            'st_count', 'total_seat', 'seat_number')
-
-    @swagger_serializer_method(serializer_or_field=serializers.CharField)
-    def get_type_name(self, obj):
-        return TypeChoicesSerializerField().data
-
-
+=======
 class QuerySerializer(serializers.ModelSerializer):
     theater = serializers.ListField(source='date_id.screen_id.cinema_id.cinema_name',
                                     help_text='지점을 배열 형식으로 입력 받습니다.')  # 지점
@@ -117,11 +59,89 @@ class QuerySerializer(serializers.ModelSerializer):
         fields = ('theater', 'movie', 'date')
 
 
-class ReservationSecondStepSerializer(serializers.ModelSerializer):
+class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
+    movie_id = serializers.IntegerField(source='id', help_text='영화 고유의 id 값')  # 영화 id
+    age = serializers.CharField(source='get_age_display', help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
+    # type = serializers.SerializerMethodField('type_display', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')
+    types = TypesArrayField(source='type', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')
+    selected = serializers.BooleanField(default=False, help_text='예매 모달 표시 여부에 사용되는 변수')
+>>>>>>> upstream/develop
+
+    class Meta:
+        model = Movie
+        fields = ('movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected')
+
+<<<<<<< HEAD
+
+class ReservationFirstStepSerializer(serializers.ModelSerializer):
     schedule_id = serializers.IntegerField(source='id')  # 사용자가 관람할(선택한) 영화의 스케줄 id
-    seat_number = serializers.CharField(source='schedule_time_seat.seat_number')  # 예매된 좌석 번호(배열)
-    price = serializers.IntegerField()  # 영화의 가격
-    st_count = serializers.IntegerField(source='seat_count')  # 예매된 좌석 수
+    theater = serializers.CharField(source='date_id.screen_id.cinema_id.cinema_name')  # 지점
+    screen = serializers.IntegerField(source='date_id.screen_id.screen_number')  # 상영관
+    date = serializers.DateField(source='date_id.date')
+    movie = serializers.CharField(source='movie_id.title')  # 영화
+    type = TypeChoicesSerializerField(source='type')  # 타입
+=======
+    # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
+
+    # def type_display(self, obj):
+    #     # sample: 'get_XXXX_display'
+    #     # get_type_display = str('get_type_display'.format(field_name=self.field_name))
+    #     # retrieve instance method
+    #     # method = getattr(value, 'get_type')
+    #     # finally use instance method to return result of get_XXXX_display()
+    #     list_ = obj.get_type_display().replace(', ', ',').split(',')
+    #     # list_ = value.get_type_display().replace(', ', ',').split(',')
+    #     temp_list = list()
+    #     if ('자막' or '더빙') in list_:
+    #         for i in range(0, len(list_), 2):
+    #             temp_list.append(list_[i:i + 2])
+    #         # type_result = ','.join(list[0])
+    #         # print(type_result)
+    #     else:
+    #         for i in range(0, len(list_)):
+    #             temp_list.append(list_[i:i + 1])
+    #     return temp_list
+
+
+class ReservationScheduleListSerializer(serializers.ModelSerializer):
+    schedule_id = serializers.IntegerField(source='id', help_text='스케줄 고유 id 값')  # 사용자가 관람할(선택한) 영화의 스케줄 id
+    theater = serializers.CharField(source='date_id.screen_id.cinema_id.cinema_name')  # 지점
+    screen = serializers.IntegerField(source='date_id.screen_id.screen_number', help_text='상영관 번호')  # 상영관
+    # date = serializers.DateField(source='date_id.date')  # 날짜
+    date = serializers.CharField(source='date_id.date', help_text='상영 날짜, ex)2019-08-23')  # 2019 11 1 vs 2019 1 12
+    start_time = serializers.SerializerMethodField('time_display', help_text='상영 시작 시간, ex)15:30')  # 상영 시간
+    movie = serializers.CharField(source='movie_id.title')  # 영화
+    # type = serializers.SerializerMethodField('type_display', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')  # 타입
+    types = StringArrayField(source='type', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')  # 타입
+>>>>>>> upstream/develop
+    total_seat = serializers.IntegerField(source='date_id.screen_id.total_seat')  # 총좌석 수
+    st_count = serializers.IntegerField(source='seat_count', help_text='예매된 좌석 수')  # 예매된 좌석 수
+    seat_number = StringArrayField(source='schedule_time_seat.seat_number', help_text='예매된 좌석 번호')  # 예매된 좌석 번호(배열)
+    age = serializers.CharField(source='get_age_display')  # 영화 연령 제한
+    running_time = serializers.IntegerField(source='movie_id.movie_id_detail.running_time')  # 영화 러닝 타임, related_name으로 oneToone 불러오기
+
+    class Meta:
+        model = Schedule_time
+        fields = (
+            'schedule_id', 'theater', 'screen', 'age', 'running_time', 'date', 'start_time', 'movie', 'types',
+            'st_count', 'total_seat', 'seat_number')
+
+    def time_display(self, obj):
+        time = None
+        try:
+            time = obj.start_time.strftime('%H:%M')
+        except AttributeError:
+            time = obj.show_time.strftime('%H:%M')
+        finally:
+            return time
+
+
+class ReservationSecondStepSerializer(serializers.ModelSerializer):
+    schedule_id = serializers.IntegerField(source='id', help_text='사용자가 시청할 영화 스케줄의 고유 id 값')  # 사용자가 관람할(선택한) 영화의 스케줄 id
+    # seat_number = serializers.CharField(source='schedule_time_seat.seat_number', help_text='예매된 좌석 번호')  # 예매된 좌석 번호(배열)
+    seat_number = StringArrayField(source='schedule_time_seat.seat_number', help_text='예매된 좌석 번호')  # 예매된 좌석 번호(배열)
+    price = serializers.IntegerField(help_text='예매 최종 가격')  # 영화의 가격
+    st_count = serializers.IntegerField(source='seat_count', help_text='예매된 좌석 수')  # 예매된 좌석 수
 
     class Meta:
         model = Schedule_time
@@ -138,3 +158,5 @@ class Return_404(serializers.Serializer):
 
 class Return_error(serializers.Serializer):
     error = serializers.CharField(allow_blank=True, required=False, default='필요한 요청이 충분하지 않습니다.')
+
+
