@@ -1,10 +1,12 @@
-import random, time, string
+import random
+import string
+import time
 
 from django.db.models import Q
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from accounts.models import BookingHistory
 from .serializers import *
@@ -97,7 +99,7 @@ def reservationScheduleListView(request):
 
     # 쿼리 하나에 값을 3개를 초과해서 받지 않음.
     # 3개 이상 입력 받을 시 에러를 반환
-    if (theater_list != None and theater_list.count('_') > 2) or (movie_title != None and movie_title.count('_') > 2) :
+    if (theater_list != None and theater_list.count('_') > 2) or (movie_title != None and movie_title.count('_') > 2):
         serializer = Return_error('1')
         return Response(serializer.data)
 
@@ -107,7 +109,8 @@ def reservationScheduleListView(request):
         my_filter_qs = Q()
         for theater in theaters:
             my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
-        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date=date).order_by('date', 'start_time')  # 날짜, 시간 순으로 정렬
+        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date=date).order_by('date',
+                                                                                                  'start_time')  # 날짜, 시간 순으로 정렬
         # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
 
         # 영화를 선택했다면
@@ -141,7 +144,7 @@ def reservationScheduleListView(request):
                      responses={200: Return_200}, operation_id='reservationSecond',
                      operation_description="예매 두 번째 스텝에서 좌석 및 선택한 영화의 정보들을 서버에 넘길 변수들입니다.", )
 @api_view(['POST'])
-@permission_classes((IsAuthenticated, ))
+@permission_classes((IsAuthenticated,))
 def reservationSecondView(request):
     # 사용자가 관람할(선택한) 영화의 스케줄 id
     booking_data = request.data
@@ -159,7 +162,8 @@ def reservationSecondView(request):
     # 아래의 코드는 Post.get(st_count)를 사용하지 않음 -> 기존 seat_number의 배열 수로 계산해서 처리함
     if request.method == "POST":
         selected_schedule = Schedule_time.objects.get(
-            id=booking_data['schedule_id'])  # .update(seat_number=seat_number, schedule_time_seat__seat_number=seat_number)
+            id=booking_data[
+                'schedule_id'])  # .update(seat_number=seat_number, schedule_time_seat__seat_number=seat_number)
         # 예약 되어있는 좌석 리스트
         booked_seat_numbers = selected_schedule.schedule_time_seat.seat_number
         # print('booked_seat_numbers:', booked_seat_numbers)
@@ -194,6 +198,7 @@ def reservationSecondView(request):
             serializer = Return_error(selected_schedule)
             return Response(serializer.data)
 
+
 def bookingHistory(request, selected_schedule, seat_numbers):
     booking_number = random_booking_number()
 
@@ -203,6 +208,7 @@ def bookingHistory(request, selected_schedule, seat_numbers):
         schedule_id=selected_schedule,
         seat_number=seat_numbers,
     )
+
 
 def random_booking_number():
     booking_number = ''
@@ -218,6 +224,3 @@ def random_booking_number():
             booking_number += str(int(random.randrange(1, 10) * time.time() / 3.5 + 1))[1]
 
     return booking_number
-
-
-

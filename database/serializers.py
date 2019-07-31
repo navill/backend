@@ -4,11 +4,6 @@ from rest_framework.fields import ListField
 from .models import *
 
 
-# class RegionSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Region
-#         fields = '__all__'
-
 class StringArrayField(ListField):
     def to_representation(self, obj):
         list_ = str(obj).replace(', ', ',').split(",")
@@ -23,7 +18,6 @@ class TypesArrayField(ListField):
         # method = getattr(value, 'get_type')
         # finally use instance method to return result of get_XXXX_display()
         list_ = str(value).replace(', ', ',').split(',')
-        # list_ = value.get_type_display().replace(', ', ',').split(',')
         temp_list = list()
         if ('자막' or '더빙') in list_:
             for i in range(0, len(list_), 2):
