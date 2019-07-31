@@ -17,7 +17,6 @@ TYPE = (
     (5, '더빙'),
 )
 
-
 # Create your models here.
 
 # class Region(models.Model):

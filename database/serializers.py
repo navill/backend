@@ -1,23 +1,21 @@
 from drf_yasg.utils import swagger_serializer_method
-# from rest_framework import serializers, fields
-# from rest_framework.serializers import ListSerializer
 from rest_framework import serializers
+from rest_framework.fields import ListField
 
 from .models import *
 
-#
+
 # class RegionSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Region
 #         fields = '__all__'
-
-from rest_framework.fields import ListField
 
 
 class StringArrayField(ListField):
     """
     String representation of an array field.
     """
+
     def to_representation(self, obj):
         myStr = str(obj).replace(', ', ',')
         myList = myStr.split(",")
