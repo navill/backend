@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.fields import ListField
 
 from .models import BookingHistory, WatchedMovie, User
 
@@ -7,15 +8,13 @@ from .models import BookingHistory, WatchedMovie, User
 class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 뜨는 정보
     class Meta:
         model = get_user_model()
-        fields = ['email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
-                  'wishMovie']
+        fields = ['email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', ]
 
 
 # class UserListSerializer(serializers.ModelSerializer):  # 유저 목록 출력을 위한 시리얼 라이저
 #     class Meta:
 #         model = get_user_model()
-#         fields = ['id', 'email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
-#                   'wishMovie']
+#         fields = ['id', 'email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', ]
 
 
 # 회원 가입 할 때 필요한 필드들에 관한 시리얼라이저
@@ -23,8 +22,7 @@ class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 �
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['email', 'password', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'watchedMovie',
-                  'wishMovie']
+        fields = ['email', 'password', 'name', 'birthDate', 'phoneNumber', 'preferTheater', ]
 
     # password 암호화 = 회원가입 기능 실행 시 리스트 목록에 password 암호화 되어 나타남
     def create(self, validated_data):
@@ -60,8 +58,9 @@ class BookingHistorySerializer(serializers.ModelSerializer):
 
 
 class MyPageSerializer(serializers.ModelSerializer):
-    booking_history = serializers.SerializerMethodField('booking_history_display', help_text='안녕로봇')
-    watchedMovieNumber = serializers.SerializerMethodField('watched_movie_number_display', help_text='ㅇㅇ')
+    booking_history = serializers.SerializerMethodField('booking_history_display', help_text='최근 예매 내역')
+    # booking_history = StringArrayField(source='', help_text='최근 예매 내역')
+    watchedMovieNumber = serializers.SerializerMethodField('watched_movie_number_display', help_text='본 영화 개수')
 
     class Meta:
         model = User
@@ -69,7 +68,6 @@ class MyPageSerializer(serializers.ModelSerializer):
 
     def booking_history_display(self, obj):
         data = obj.watched_movie_users.filter(user=obj)
-        b_obj = None
         list_ = list()
 
         for item in data.values():
@@ -81,7 +79,7 @@ class MyPageSerializer(serializers.ModelSerializer):
             dict_ = {
                 'img_url' : schedule.movie_id.img_url,
                 'title' : schedule.movie_id.title,
-                'booking_date' : b_obj.booking_date,
+                'booking_date' : b_obj.booking_date.strftime('%Y-%m-%d %H:%M'),
                 'theater' : theater,
             }
 
@@ -89,7 +87,7 @@ class MyPageSerializer(serializers.ModelSerializer):
         return list_
 
     def watched_movie_number_display(self, obj):
-        data = BookingHistory.objects.filter(user=obj)
+        data = WatchedMovie.objects.filter(user=obj)
         return len(data)
 
 

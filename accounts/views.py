@@ -91,14 +91,15 @@ def bookingHistoryView(request):
         serializer = BookingHistorySerializer(queryset, many=True)
         return Response(serializer.data)
 
-
+@swagger_auto_schema(method='get',
+                     responses={200: MyPageSerializer(many=True)},
+                     operation_id='myPage',
+                     operation_description="마이페이지를 열람합니다.", )
 @api_view(['GET'])
+@permission_classes((IsAuthenticated, ))
 def myPageView(request):
-    # 0. 본 영화 체크하기(최근 예매 내역의 날짜와 비교해서 추가)
-    # 1. 로그인한 유저 비교 (토큰)
-    # 2. 로그인한 유저 정보 뿌리기
     myUser = request.user
-    print('request.user:', request.user)
+    watched = False  # 봤던 영화 체크에 필요한 변수
 
     if not myUser:
         serializer = Return_error('1')
@@ -107,31 +108,31 @@ def myPageView(request):
         bookingObj = BookingHistory.objects.filter(user=myUser)
         watchedObj = WatchedMovie.objects.filter(user=myUser)
         today = datetime.datetime.now()
-        print('today: ', today)
 
         # 상영일이 지났다면 본 영화에 추가
         for item in bookingObj:
             b_date = item.schedule_id.date
             b_start_time = item.schedule_id.start_time
             b_datetime = datetime.datetime.strptime(str(b_date)+' '+str(b_start_time), '%Y-%m-%d %H:%M:%S')
-            print('booking_date: ', b_date)
-            print('booking_start_time: ', b_start_time)
-            print('booking_datetime: ', b_datetime)
-            print('item: ', item)
+            # print('booking_date: ', b_date)
+            # print('booking_start_time: ', b_start_time)
+            # print('booking_datetime: ', b_datetime)
+            # print('item: ', item)
 
-            for watched in watchedObj:
+            for obj in watchedObj:
                 # 이미 본 영화에 추가되었다면 추가 안함
-                print(watched.booking_history_id.booing_history_id)
-                # if item.booking_number == watched.booking_history_id_id.booking_number:
-                #     continue
-                # 본 영화 목록에 없다면 추가
-                # if today > b_datetime:
-                #     WatchedMovie.objects.create(
-                #         booking_history_id=item,
-                #         user=myUser,
-                #     )
+                # print('item.booking_number: ', item.booking_number)
+                # print('watched.booking_history_id.booking_number: ', watched.booking_history_id.booking_number)
+                if item.booking_number == obj.booking_history_id.booking_number:
+                    watched = True
+
+            if not watched and today > b_datetime:
+                WatchedMovie.objects.create(
+                    booking_history_id=item,
+                    user=myUser,
+                )
+            watched = False
 
         serializer = MyPageSerializer(myUser)
         return Response(serializer.data)
-
 
