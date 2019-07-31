@@ -1,6 +1,6 @@
 from django.db import models
 from multiselectfield import MultiSelectField
-from accounts.models import User
+# from accounts.models import User
 
 AGE_RATE = (
     (0, '전체 관람'),
@@ -66,7 +66,6 @@ class Movie(models.Model):
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
-    movie_detail_id = models.ForeignKey('Movie_detail', on_delete=models.CASCADE, related_name='details', null=True)
 
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
@@ -157,11 +156,3 @@ class Seat(models.Model):
         self.schedule_time.save()
         super(Seat, self).save(*args, **kwargs)
 
-
-class BookingHistory(models.Model):
-    booking_number = models.CharField(editable=False, max_length=50, primary_key=True)  # 예매 번호, 랜덤하게 생성
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')  # 예매한 유저
-    schedule_id = models.ForeignKey(Schedule_time, on_delete=models.SET_NULL, null=True)  # 예매한 영화 스케줄
-    seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
-    booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간
-    canceled = models.BooleanField(default=False)  # 예매 취소 여부

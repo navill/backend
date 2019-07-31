@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User
+from .models import User, BookingHistory, WatchedMovie
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import ugettext_lazy as _
 
@@ -40,3 +40,14 @@ class UserAdmin(DjangoUserAdmin):
 #
 #
 # admin.site.register(User, CustomUserAdmin)
+
+class BookingHistoryAdmin(admin.ModelAdmin):
+    list_display = ('booking_number', 'user', 'schedule_id', 'seat_number', 'booking_date', 'canceled')
+
+admin.site.register(BookingHistory, BookingHistoryAdmin)
+
+
+class WatchedMovieAdmin(admin.ModelAdmin):
+    list_display = ('user', 'booking_history_id')
+
+admin.site.register(WatchedMovie, WatchedMovieAdmin)

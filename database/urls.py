@@ -32,6 +32,5 @@ urlpatterns = [
     path('showMovies/', showMoviesView),
     path('reservationScheduleList/', reservationScheduleListView),
     path('reservationSecondView/', reservationSecondView),
-    path('bookingHistoryView/', bookingHistoryView),
 ]
 

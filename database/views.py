@@ -2,13 +2,11 @@ import random, time, string
 
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
-
-from .models import *
-
-from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
+
+from accounts.models import BookingHistory
 from .serializers import *
 
 
@@ -109,8 +107,7 @@ def reservationScheduleListView(request):
         my_filter_qs = Q()
         for theater in theaters:
             my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
-        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date=date).order_by('date',
-                                                                                                       'start_time')  # 날짜, 시간 순으로 정렬
+        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date=date).order_by('date', 'start_time')  # 날짜, 시간 순으로 정렬
         # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
 
         # 영화를 선택했다면
@@ -222,31 +219,5 @@ def random_booking_number():
 
     return booking_number
 
-@swagger_auto_schema(method='get',
-                     responses={200: BookingHistorySerializer(many=True)},
-                     operation_id='bookingHistory',
-                     operation_description="최근 예매 내역을 열람합니다.", )
-@api_view(['GET'])
-@permission_classes((IsAuthenticated, ))
-def bookingHistoryView(request):
-    myUser = request.user
 
-    if not myUser:
-        serializer = Return_error('1')
-        return Response(serializer.data)
-    else:
-        queryset = BookingHistory.objects.filter(user=myUser)
-        serializer = BookingHistorySerializer(queryset, many=True)
-        return Response(serializer.data)
 
-# def myPageView(request):
-#     # 1. 로그인한 유저 비교 (토큰)
-#     # 2. 로그인한 유저 정보 뿌리기
-#     if not request.user:
-#         serializer = Return_error('1')
-#         return Response(serializers.data)
-#     else:
-#         obj = BookingHistory.objects.get(user=request.user)
-#         email = obj.email
-#
-#         return

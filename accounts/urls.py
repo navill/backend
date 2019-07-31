@@ -13,4 +13,6 @@ urlpatterns = [
     path('delete/<int:pk>/', UserDelete.as_view()),  # 기본 rest_framework 디테일 URL
     path('create/', UserCreateAPI.as_view(), name='user_create'),  # views 에 유저 생성 URL
     # path('list/', UserListAPI.as_view(), name='user_list'),  # views 에 유저 list URL
+    path('bookingHistory/', bookingHistoryView),
+    path('myPage/', myPageView),
 ]

@@ -66,8 +66,3 @@ class MovieAdmin(admin.ModelAdmin):
 
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(Movie_detail)
-
-class BookingHistoryAdmin(admin.ModelAdmin):
-    list_display = ('booking_number', 'user', 'schedule_id', 'seat_number', 'booking_date', 'canceled')
-
-admin.site.register(BookingHistory, BookingHistoryAdmin)

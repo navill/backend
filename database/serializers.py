@@ -1,54 +1,13 @@
-from abc import ABC
-
-from drf_yasg.utils import swagger_serializer_method
+from rest_framework.fields import ListField
 from rest_framework import serializers
 
-from accounts.models import User
 from .models import *
-
-#
-# class RegionSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Region
-#         fields = '__all__'
-
-from rest_framework.fields import ListField
 
 
 class StringArrayField(ListField):
     def to_representation(self, obj):
         list_ = str(obj).replace(', ', ',').split(",")
         return list_
-
-
-class ScreenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Screen
-        fields = '__all__'
-
-
-class Schedule_timeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Schedule_time
-        fields = '__all__'
-
-
-class Schedule_dateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Schedule_date
-        fields = '__all__'
-
-
-class CinemaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cinema
-        fields = '__all__'
-
-
-class MovieSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Movie
-        fields = '__all__'
 
 
 class TypesArrayField(ListField):
@@ -130,7 +89,7 @@ class ReservationScheduleListSerializer(serializers.ModelSerializer):
     st_count = serializers.IntegerField(source='seat_count', help_text='예매된 좌석 수')  # 예매된 좌석 수
     seat_number = StringArrayField(source='schedule_time_seat.seat_number', help_text='예매된 좌석 번호')  # 예매된 좌석 번호(배열)
     age = serializers.CharField(source='get_age_display')  # 영화 연령 제한
-    running_time = serializers.IntegerField(source='movie_id.movie_detail_id.running_time')  # 영화 러닝 타임
+    running_time = serializers.IntegerField(source='movie_id.movie_id_detail.running_time')  # 영화 러닝 타임, related_name으로 oneToone 불러오기
 
     class Meta:
         model = Schedule_time
@@ -158,24 +117,6 @@ class ReservationSecondStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule_time
         fields = ('schedule_id', 'seat_number', 'price', 'st_count')
-
-
-class BookingHistorySerializer(serializers.ModelSerializer):
-    img_url = serializers.CharField(source='schedule_id.movie_id.img_url')  # 포스터 이미지
-    title = serializers.CharField(source='schedule_id.movie_id.title', help_text='영화 제목')  # 영화 타이틀
-    theater = serializers.CharField(source='schedule_id.date_id.screen_id.cinema_id.cinema_name')  # 지점
-    screen_number = serializers.IntegerField(source='schedule_id.date_id.screen_id.screen_number', help_text='상영관 번호')  # 상영관 번호
-    show_date = serializers.DateField(source='schedule_id.date_id.date', help_text='상영 일시')  # 상영 일시
-    start_time = serializers.SerializerMethodField('time_display', help_text='상영 시작 시간, ex)15:30')  # 상영 시간
-
-    class Meta:
-        model = BookingHistory
-        fields = ('booking_number', 'title', 'img_url', 'theater', 'screen_number', 'show_date', 'start_time',
-                  'booking_date', 'canceled')
-
-    def time_display(self, obj):
-        time = obj.schedule_id.start_time.strftime('%H:%M')
-        return time
 
 
 class Return_200(serializers.Serializer):
