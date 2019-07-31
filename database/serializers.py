@@ -18,7 +18,6 @@ class StringArrayField(ListField):
     """
     String representation of an array field.
     """
-
     def to_representation(self, obj):
         myStr = str(obj).replace(', ', ',')
         myList = myStr.split(",")
@@ -61,18 +60,12 @@ class MovieSerializer(serializers.ModelSerializer):
 
 class TypeChoicesSerializerField(serializers.SerializerMethodField):
     def to_representation(self, value):
-        # sample: 'get_XXXX_display'
-        # get_type_display = str('get_type_display'.format(field_name=self.field_name))
-        # retrieve instance method
         method = getattr(value, 'get_type_display')
-        # finally use instance method to return result of get_XXXX_display()
         list_ = method().replace(', ', ',').split(',')
         temp_list = list()
         if ('자막' or '더빙') in list_:
             for i in range(0, len(list_), 2):
                 temp_list.append(list_[i:i + 2])
-            # type_result = ','.join(list[0])
-            # print(type_result)
         else:
             for i in range(0, len(list_)):
                 temp_list.append(list_[i:i + 1])
@@ -83,9 +76,6 @@ class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
     movie_id = serializers.IntegerField(source='id')  # 영화 id
     age = serializers.ChoiceField(choices=AGE_RATE,
                                   help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
-    # type = StringArrayField(source='get_type_display')  # 타입
-    # type = serializers.MultipleChoiceField(choices=TYPE,
-    #                                        help_text='0: 2D, 1: 3D, 2: 4D, 3: Digital')
     type = TypeChoicesSerializerField(source='type')
     selected = serializers.BooleanField(default=False)
 
@@ -93,19 +83,14 @@ class GetReservationFirstStepSerializer(serializers.HyperlinkedModelSerializer):
         model = Movie
         fields = ('movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'type', 'selected')
 
-    # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
-
 
 class ReservationFirstStepSerializer(serializers.ModelSerializer):
     schedule_id = serializers.IntegerField(source='id')  # 사용자가 관람할(선택한) 영화의 스케줄 id
     theater = serializers.CharField(source='date_id.screen_id.cinema_id.cinema_name')  # 지점
     screen = serializers.IntegerField(source='date_id.screen_id.screen_number')  # 상영관
-    # date = serializers.DateField(source='date_id.date')  # 날짜
     date = serializers.DateField(source='date_id.date')
     movie = serializers.CharField(source='movie_id.title')  # 영화
     type = TypeChoicesSerializerField(source='type')  # 타입
-    # type = serializers.CharField(source='get_type_display')
-    # type = TypeChoicesSerializerField(source='type')
     total_seat = serializers.IntegerField(source='date_id.screen_id.total_seat')  # 총좌석 수
     st_count = serializers.IntegerField(source='seat_count')  # 예매된 좌석 수
     seat_number = StringArrayField(source='schedule_time_seat.seat_number')  # 예매된 좌석 번호(배열)
