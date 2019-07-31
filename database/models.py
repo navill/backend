@@ -1,6 +1,6 @@
 from django.db import models
 from multiselectfield import MultiSelectField
-from accounts.models import User
+# from accounts.models import User
 
 AGE_RATE = (
     (0, '전체 관람'),
@@ -81,6 +81,9 @@ class Movie_detail(models.Model):
     cast = models.TextField()
     genre = models.TextField()
 
+    def __str__(self):
+        return f"info: {self.movie.title}"
+
 
 class Schedule_date(models.Model):
     screen_id = models.ForeignKey(Screen, on_delete=models.SET_NULL, related_name="screen_id_schedule", blank=True,
@@ -111,7 +114,8 @@ class Schedule_time(models.Model):
     start_time = models.TimeField()  # start_time + movie.running_time = end_time
     date = models.DateField()
     # 임시로 character field로 저장되기 위해 사용됨
-    type = models.CharField(max_length=15, null=True)
+    # type = models.CharField(max_length=15, null=True)
+    type = MultiSelectField(choices=TYPE, max_choices=2, max_length=50, null=True)
 
     class Meta:
         ordering = ['start_time']
@@ -132,8 +136,8 @@ class Schedule_time(models.Model):
     #         self.date_id.save()
     #     super(Schedule_time, self).save(*args, **kwargs)
 
-    def get_type_display(self):
-        return self.movie_id.get_type_display()
+    def get_age_display(self):
+        return self.movie_id.get_age_display()
 
     def __str__(self):
         return f"지점 : {self.date_id.screen_id.cinema_id.cinema_name}(screen:{self.date_id.screen_id.screen_number}), 상영일자: {self.date_id.date}, 시간: {self.start_time}" \
@@ -152,12 +156,3 @@ class Seat(models.Model):
         self.schedule_time.save()
         super(Seat, self).save(*args, **kwargs)
 
-
-class BookingHistory(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')  # 예매한 유저
-    bookingNumber = models.CharField(editable=False, max_length=200, unique=True)  # 예매 번호, 랜덤하게 생성되며 유일한 값을 가짐
-    movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="movie_id_booking")  # 영화 타이틀
-    screen = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screens')  # 지점, 상영관,
-    seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
-    date = models.ForeignKey(Schedule_date, on_delete=models.CASCADE, related_name='dates')  # 날짜, 시간
-    booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간

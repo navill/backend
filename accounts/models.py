@@ -2,8 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 
-
-# Create your models here.
+from database.models import Schedule_time
 
 
 class UserManager(BaseUserManager):
@@ -56,6 +55,30 @@ class User(AbstractUser):
     phoneNumber = models.CharField(verbose_name='핸드폰 번호', max_length=15, blank=True, null=True)  # CharField
     birthDate = models.DateField(verbose_name='생년월일', null=True, blank=True)  # DateField
     name = models.CharField(verbose_name='이름', max_length=30)
-    watchedMovie = models.CharField(verbose_name='본 영화', max_length=20, blank=True)  # CharField
-    wishMovie = models.CharField(verbose_name='보고싶어', max_length=20, blank=True)  # CharField
+    # watchedMovie = models.CharField(verbose_name='본 영화', max_length=20, blank=True)  # CharField, 불필요한 필드로 판단
+    # wishMovie = models.CharField(verbose_name='보고싶어', max_length=20, blank=True)  # CharField, 불필요한 필드로 판단
+
+
+# 테이블 재설계 필요
+# -> 이유 : 현재 이 테이블은 삭제 될 가능성이 있는 스케줄 id에 상당히 의존적임
+# -> 문제 : 스케줄 id가 지워지면 따로 영화 정보를 저장하는 것이 아니기 때문에 조회가 불가능해짐
+# -> 해결1 : 스케줄 id에 의존하는 것이 아닌 이 테이블에 예매한 영화 정보를 저장함.
+# -> 해결2 : 스케줄 id가 지워질 일이 없다고 가정하면 굳이 안고쳐도 됨.
+class BookingHistory(models.Model):
+    booking_number = models.CharField(editable=False, max_length=50, primary_key=True)  # 예매 번호, 랜덤하게 생성
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')  # 예매한 유저
+    schedule_id = models.ForeignKey(Schedule_time, on_delete=models.SET_NULL, null=True)  # 예매한 영화 스케줄
+    seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
+    booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간
+    canceled = models.BooleanField(default=False)  # 예매 취소 여부
+
+
+# BookingHistory만 참조하는 거면 따로 테이블 생성 없이 BookingHistory 이용해서 본영화를 출력할 때 날짜 비교해서 예매날짜 지난 것만 출력하게 하면 됨
+# 하지만 예매 내역에 없는 영화를 등록할 수 있음(오프라인 예매를 했을 경우 가능)
+# --> 이 기능이 필요하다면 오프라인 예매 정보만을 등록할 수 있는 기능이 필요함
+# 또 본 영화를 삭제도 가능하므로 테이블을 생성을 하는게 맞다고 판단
+# --> 오프라인 예매 등록, 삭제 기능 활용하지 않을 경우 굳이 테이블 생성이 필요 없을듯
+class WatchedMovie(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watched_movie_users')
+    booking_history_id = models.ForeignKey(BookingHistory, on_delete=models.SET_NULL, null=True)
 
