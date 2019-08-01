@@ -4,6 +4,7 @@ import time
 
 from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -88,29 +89,31 @@ def showMoviesView(request):
                      query_serializer=QuerySerializer,
                      operation_id='reservationScheduleList',
                      operation_description="예매 첫 번째 스텝에서 영화 스케줄 목록 정보를 리턴합니다.")
+
+
 @api_view(['GET'])
 def reservationScheduleListView(request):
     # 극장
-    theater_list = request.GET.get('theater', None)  # list type
+    theater_list = request.GET.getlist('theater')  # list type
     # 영화 타이틀
-    movie_title = request.GET.get('movie', None)  # list type
+    movie_title = request.GET.get('movie')  # list type
     # 상영 날짜
-    date = request.GET.get('date', None)  # -> 2019-07-06
+    date = request.GET.get('date')  # -> 2019-07-06
 
     # 쿼리 하나에 값을 3개를 초과해서 받지 않음.
     # 3개 이상 입력 받을 시 에러를 반환
-    if (theater_list != None and theater_list.count('_') > 2) or (movie_title != None and movie_title.count('_') > 2):
+    if (theater_list is not None and theater_list.count('_') > 2) or (movie_title is not None and movie_title.count('_') > 2):
         serializer = Return_error('1')
         return Response(serializer.data)
 
     # get 형식이라면~
     if theater_list and date:  # get_queryset에 세 가지 중 두 가지(theater, date) 있을 경우
         theaters = theater_list.split('_')
-        my_filter_qs = Q()
         for theater in theaters:
-            my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
-        movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date=date).order_by('date',
-                                                                                                  'start_time')  # 날짜, 시간 순으로 정렬
+            movie_schedules = Schedule_time.objects.filter(
+                date_id__screen_id__cinema_id__cinema_name=theater,
+                date_id__date=date,
+            ).order_by('date', 'start_time')  # 날짜, 시간 순으로 정렬
         # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
 
         # 영화를 선택했다면
@@ -126,8 +129,8 @@ def reservationScheduleListView(request):
                 e = queryset.select_related('schedule_time_seat').get(id=i.id)
                 e.seat_count = len(str(e.schedule_time_seat.seat_number).split(','))
                 # 아래의 함수는 사용자가 좌석을 입력했을 때 실행해야한다.
-                e.numbering_seat_count(e.seat_count)
-                e.save()
+                # e.numbering_seat_count(e.seat_count)
+                # e.save()
                 # print(e.id, e.movie_id, e.start_time, e.date_id_id, e.movie_id_id, "seat count:", e.seat_count,
                 #       e.schedule_time_seat.seat_number)
             serializer = ReservationScheduleListSerializer(queryset, many=True)
@@ -193,13 +196,14 @@ def reservationSecondView(request):
 
             serializer = Return_200(selected_schedule)
             # print(booked_seat_numbers)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             serializer = Return_error(selected_schedule)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 
 def bookingHistory(request, selected_schedule, seat_numbers):
+    # def booking_history
     booking_number = random_booking_number()
 
     BookingHistory.objects.create(

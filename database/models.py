@@ -1,6 +1,7 @@
 from django.db import models
 from multiselectfield import MultiSelectField
-# from accounts.models import User
+
+import accounts
 
 AGE_RATE = (
     (0, '전체 관람'),
@@ -16,6 +17,7 @@ TYPE = (
     (4, '자막'),
     (5, '더빙'),
 )
+
 
 # Create your models here.
 
@@ -66,6 +68,7 @@ class Movie(models.Model):
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
+    wish_movie = models.ManyToManyField('accounts.User', null=True)
 
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
@@ -86,8 +89,9 @@ class Movie_detail(models.Model):
 
 
 class Schedule_date(models.Model):
-    screen_id = models.ForeignKey(Screen, on_delete=models.SET_NULL, related_name="screen_id_schedule", blank=True,
-                                  null=True)
+    screen_id = models.ForeignKey(
+        Screen, on_delete=models.SET_NULL,
+        related_name="screen_id_schedule", blank=True, null=True)
     date = models.DateField()
 
     class Meta:
@@ -155,4 +159,3 @@ class Seat(models.Model):
         self.schedule_time.seat_count = seat_count
         self.schedule_time.save()
         super(Seat, self).save(*args, **kwargs)
-
