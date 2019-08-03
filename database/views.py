@@ -230,7 +230,7 @@ def random_booking_number():
 
 
 @api_view(['GET'])
-def check_wishmovies(request):
+def check_wishmovies_view(request):
     # get = 'movie_id'
     # a = request.query_params['movie_id']
     serializer = CheckWishMovieSerializer(request)
