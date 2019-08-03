@@ -1,8 +1,6 @@
 from django.db import models
 from multiselectfield import MultiSelectField
 
-import accounts
-
 AGE_RATE = (
     (0, '전체 관람'),
     (1, '12세 관람가'),
@@ -69,6 +67,7 @@ class Movie(models.Model):
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
     wish_user = models.ManyToManyField('accounts.User', null=True)
 
+    # star_rate 추가해야함
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
     def __str__(self):

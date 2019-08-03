@@ -80,7 +80,7 @@ from .serializers import *
 @api_view(['GET'])
 def showMoviesView(request):
     movie = Movie.objects.all().order_by('-booking_rate')  # 예매율 순으로 정렬됨
-    serializer = ShowMoviesSerializer(movie, many=True)
+    serializer = ShowMoviesSerializer(movie, many=True, context={'request': request})
     return Response(serializer.data)
 
 
@@ -229,6 +229,7 @@ def random_booking_number():
     return booking_number
 
 
+# Post로 변환해야함
 @api_view(['GET'])
 def check_wishmovies_view(request):
     # get = 'movie_id'

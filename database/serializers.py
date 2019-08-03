@@ -44,10 +44,25 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
     age = serializers.CharField(source='get_age_display', help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
     types = TypesArrayField(source='type', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')
     selected = serializers.BooleanField(default=False, help_text='예매 모달 표시 여부에 사용되는 변수')
+    is_wished = serializers.SerializerMethodField()
 
+    # wish_user에 로그인 유저가 포함되어있는지 여부를 판단할 수 있는 boolean type 필드 생성
+    # -> get_wish_user() 생성
     class Meta:
         model = Movie
-        fields = ('movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected')
+        fields = (
+        'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected', 'is_wished')
+
+    def get_is_wished(self, obj):
+        # check_wish = obj.filter(wish_user=req_user)
+        # return check_wish
+        user = self.context['request'].user
+        wish_users = obj.wish_user.all()
+        print(wish_users)
+        if user in wish_users:
+            return True
+        else:
+            return False
 
     # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
 
