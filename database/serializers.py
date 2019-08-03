@@ -116,6 +116,32 @@ class ReservationSecondStepSerializer(serializers.ModelSerializer):
         fields = ('schedule_id', 'seat_number', 'price', 'st_count')
 
 
+class CheckWishMovieSerializer(serializers.Serializer):
+    selected = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Movie
+        fields = '__all__'
+
+    def get_selected(self, obj):
+        user_mail = obj.user
+        movie = Movie.objects.get(id=obj.query_params['movie_id'])
+        if user_mail in movie.wish_user.all():
+            movie.wish_user.remove(user_mail)
+            return False
+        else:
+            movie.wish_user.add(user_mail)
+            return True
+
+
+class ShowRegionSerializer(serializers.ModelSerializer):
+    # region_name = serializers.CharField(source='name')
+
+    class Meta:
+        model = Region
+        fields = '__all__'
+
+
 class Return_200(serializers.Serializer):
     status = serializers.CharField(allow_blank=True, required=False, default='ok')
 

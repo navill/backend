@@ -21,18 +21,17 @@ TYPE = (
 
 # Create your models here.
 
-# class Region(models.Model):
-#     name = models.CharField(max_length=100)
-# 
-#     class Meta:
-#         ordering = ['name']
-# 
-#     def __str__(self):
-#         return self.name
+class Region(models.Model):
+    name = models.CharField(max_length=100)
+
+    # class Meta:
+
+    def __str__(self):
+        return self.name
 
 
 class Cinema(models.Model):
-    # region_id = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='region_id')
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='region_id')
     cinema_name = models.CharField(max_length=100)
     detail = models.CharField(max_length=100)
 
@@ -68,7 +67,7 @@ class Movie(models.Model):
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
-    wish_movie = models.ManyToManyField('accounts.User', null=True)
+    wish_user = models.ManyToManyField('accounts.User', null=True)
 
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 

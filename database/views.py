@@ -89,8 +89,6 @@ def showMoviesView(request):
                      query_serializer=QuerySerializer,
                      operation_id='reservationScheduleList',
                      operation_description="예매 첫 번째 스텝에서 영화 스케줄 목록 정보를 리턴합니다.")
-
-
 @api_view(['GET'])
 def reservationScheduleListView(request):
     # 극장
@@ -102,7 +100,8 @@ def reservationScheduleListView(request):
 
     # 쿼리 하나에 값을 3개를 초과해서 받지 않음.
     # 3개 이상 입력 받을 시 에러를 반환
-    if (theater_list is not None and theater_list.count('_') > 2) or (movie_title is not None and movie_title.count('_') > 2):
+    if (theater_list is not None and theater_list.count('_') > 2) or (
+            movie_title is not None and movie_title.count('_') > 2):
         serializer = Return_error('1')
         return Response(serializer.data)
 
@@ -228,3 +227,18 @@ def random_booking_number():
             booking_number += str(int(random.randrange(1, 10) * time.time() / 3.5 + 1))[1]
 
     return booking_number
+
+
+@api_view(['GET'])
+def check_wishmovies(request):
+    # get = 'movie_id'
+    # a = request.query_params['movie_id']
+    serializer = CheckWishMovieSerializer(request)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def show_region_view(request):
+    region = Region.objects.all()
+    serializer = ShowRegionSerializer(region, many=True)
+    return Response(serializer.data)
