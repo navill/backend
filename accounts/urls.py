@@ -1,7 +1,7 @@
-from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-from .views import *
+from django.urls import path
 
+from .views import *
 
 app_name = 'accounts'
 urlpatterns = [
@@ -12,12 +12,13 @@ urlpatterns = [
     path('update/<int:pk>/', UserUpdate.as_view()),  # 기본 rest_framework 디테일 URL
     path('delete/<int:pk>/', UserDelete.as_view()),  # 기본 rest_framework 디테일 URL
     # path('create/', UserCreateAPI.as_view(), name='user_create'),  # views 에 유저 생성 URL
+    path('showCreate/', user_create_in_prefer_list_view),
     path('create/', user_create_view, name='user_create'),  # views 에 유저 생성 URL
     # path('list/', UserListAPI.as_view(), name='user_list'),  # views 에 유저 list URL
-    path('bookingHistory/', bookingHistoryView),
-    path('myPage/', myPageView),
-    path('myInfo/', my_info_view),
-    path('modifyMyInfo/', modify_my_info_view),
-    path('showPreferTheater/', show_prefer_theater_view),
-    path('modifyPreferTheater/<int:id>', modify_prefer_theater_view),
+    path('bookingHistory/', booking_history_view),
+    path('myPage/', my_page_view),
+    path('showMyInfo/', show_my_info_view),
+    path('updateMyInfo/', update_my_info_view),
+    path('updatePreferTheater/', show_prefer_theater_view),
+    path('updatePreferTheater/<int:id>', update_prefer_theater_view),
 ]

@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework import generics
 
 from .models import BookingHistory, WatchedMovie, User
+from database.models import Cinema, Region
 from database.serializers import Return_error
 from .serializers import *
 
@@ -81,6 +82,16 @@ class UserCreateAPI(generics.CreateAPIView):  # user create 값 받기?
         return Response(self)
 
 
+@swagger_auto_schema(method='get',
+                     responses={200: UserCreateInPreferListSerializer(many=True)},
+                     operation_id='userCreateInPreferTheaterList',
+                     operation_description="유저 생성시 선택할 수 있는 선호영화관의 리스트를 출력합니다.", )
+@api_view(['GET'])
+def user_create_in_prefer_list_view(request):
+    serializer = UserCreateInPreferListSerializer(Region)
+    return Response(serializer.data)
+
+
 @swagger_auto_schema(method='post',
                      responses={200: UserCreateSerializer(many=True)},
                      operation_id='userCreate',
@@ -115,28 +126,28 @@ def user_create_view(request):
 
 
 @swagger_auto_schema(method='get',
-                     responses={200: MyInfoSerializer(many=True)},
+                     responses={200: ShowMyInfoSerializer(many=True)},
                      operation_id='myInfo',
-                     operation_description="개인 정보를 열람합니다.", )
+                     operation_description="수정할 개인 정보를 출력합니다.", )
 @api_view(['get'])
 @permission_classes((IsAuthenticated, ))
-def my_info_view(request):
+def show_my_info_view(request):
     user = request.user
 
     if not user:
         return False
     else:
-        serializer = MyInfoSerializer(user)
+        serializer = ShowMyInfoSerializer(user)
         return Response(serializer.data)
 
 
 @swagger_auto_schema(method='post',
-                     responses={200: ModifyMyInfoSerializer(many=True)},
-                     operation_id='modifyMyInfo',
+                     responses={200: UpdateMyInfoSerializer(many=True)},
+                     operation_id='updateMyInfo',
                      operation_description="개인 정보를 수정합니다.", )
 @api_view(['post'])
 @permission_classes((IsAuthenticated, ))
-def modify_my_info_view(request):
+def update_my_info_view(request):
     user = request.user  # 로그인 유저 정보를 담음.
 
     if not user:
@@ -153,14 +164,15 @@ def modify_my_info_view(request):
         try:
             if data['preferTheater']:  # 선호영화관을 수정한다면
                 data_pre = data['preferTheater']
-                user_pre = eval(user.preferTheater)
+                if user.preferTheater:
+                    user_pre = eval(user.preferTheater)
 
-                for i in range(len(data_pre)):
-                    user_pre[i].update(data_pre[i])
+                    for i in range(len(data_pre)):
+                        user_pre[i].update(data_pre[i])
 
-                # print('data_pre: ', data_pre)
-                # print('user_pre: ', user_pre)
-                data['preferTheater'] = str(user_pre)
+                    # print('data_pre: ', data_pre)
+                    # print('user_pre: ', user_pre)
+                    data['preferTheater'] = str(user_pre)
         except KeyError:
             pass
 
@@ -182,7 +194,7 @@ def modify_my_info_view(request):
             )
 
         # re = User.objects.get(pk=user.id)  # 값 확인용
-        # serializer = ModifyMyInfoSerializer(re)  # 값 확인용
+        # serializer = UpdateMyInfoSerializer(re)  # 값 확인용
         # return Response(serializer.data)  # 값 확인용
         return Response(True)
 
@@ -190,7 +202,7 @@ def modify_my_info_view(request):
 @swagger_auto_schema(method='get',
                      responses={200: PreferTheaterSerializer(many=True)},
                      operation_id='showPreferTheater',
-                     operation_description="선호 영화관 등록/수정에서 선호영화관을 출력합니다.", )
+                     operation_description="선호 영화관 등록/수정에서 선호영화관 및 선택 리스트를 출력합니다.", )
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def show_prefer_theater_view(request):
@@ -204,32 +216,21 @@ def show_prefer_theater_view(request):
 
 
 @swagger_auto_schema(method='post',
-                     responses={200: PreferTheaterSerializer(many=True)},
-                     operation_id='modifyPreferTheater',
+                     # responses={200: PreferTheaterSerializer(many=True)},
+                     operation_id='updatePreferTheater',
                      operation_description="선호 영화관 등록/수정에서 선호영화관을 등록/수정합니다.", )
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def modify_prefer_theater_view(request, id):
+def update_prefer_theater_view(request, id):
     user = request.user
 
     if not user:
         return False
     else:
         preferId =id
-        print('prefer_id: ', preferId, type(preferId))
-
         userPrefer = eval(user.preferTheater)
-        print('userPrefer: ', userPrefer)
-
         data = request.data
-        print('data: ', data, type(data))
-
-        print('request.data: ', request.data, type(request.data))
-
         userPrefer[preferId].update(data)
-        print('updateData: ', userPrefer, type(userPrefer))
-
-        userPrefer_str = str(userPrefer)
 
         # serializer = PreferTheaterSerializer(user, data=userPrefer[0], partial=True)
         # print('serializer: ', serializer)
@@ -254,7 +255,7 @@ def modify_prefer_theater_view(request, id):
                      operation_description="최근 예매 내역을 열람합니다.", )
 @api_view(['GET'])
 @permission_classes((IsAuthenticated, ))
-def bookingHistoryView(request):
+def booking_history_view(request):
     myUser = request.user
 
     if not myUser:
@@ -272,7 +273,7 @@ def bookingHistoryView(request):
                      operation_description="마이페이지를 열람합니다.", )
 @api_view(['GET'])
 @permission_classes((IsAuthenticated, ))
-def myPageView(request):
+def my_page_view(request):
     myUser = request.user
     watched = False  # 봤던 영화 체크에 필요한 변수
 
