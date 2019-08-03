@@ -51,7 +51,7 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Movie
         fields = (
-        'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected', 'is_wished')
+            'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected', 'is_wished')
 
     def get_is_wished(self, obj):
         # check_wish = obj.filter(wish_user=req_user)
@@ -132,13 +132,13 @@ class ReservationSecondStepSerializer(serializers.ModelSerializer):
 
 
 class CheckWishMovieSerializer(serializers.Serializer):
-    selected = serializers.SerializerMethodField()
+    is_wished = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
         fields = '__all__'
 
-    def get_selected(self, obj):
+    def get_is_wished(self, obj):
         user_mail = obj.user
         movie = Movie.objects.get(id=obj.query_params['movie_id'])
         if user_mail in movie.wish_user.all():
