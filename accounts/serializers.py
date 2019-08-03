@@ -22,16 +22,73 @@ class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 �
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['email', 'password', 'name', 'birthDate', 'phoneNumber', 'preferTheater', ]
+        fields = ['email', 'password', 'name', 'birthDate', 'phoneNumber', 'preferTheater']
 
     # password 암호화 = 회원가입 기능 실행 시 리스트 목록에 password 암호화 되어 나타남
-    def create(self, validated_data):
-        user = get_user_model().objects.create(**validated_data)
-        user.set_password(validated_data.get('password'))
-        user.is_active = True
-        user.save()
+    # def create(self, validated_data):
+    #     print('validated_data: ', validated_data)
+    #     print('type: ', validated_data)
 
-        return user
+        # user = get_user_model().objects.create(**validated_data)
+        # user.set_password(validated_data.get('password'))
+        # user.is_active = True
+        # user.save()
+
+        # return user
+        # return user
+
+
+class ModifyMyInfoSerializer(serializers.ModelSerializer):
+    preferTheater = serializers.SerializerMethodField('string_to_array')
+    password = serializers.SerializerMethodField('password_display', required=False)
+
+    class Meta:
+        model = get_user_model()
+        fields = ('phoneNumber', 'preferTheater', 'password')
+
+    def string_to_array(self, obj):
+        data = obj.preferTheater
+        list_ = eval(data)
+        # print('list_: ', list_)
+        # print('type: ', type(list_))
+
+        return list_
+
+    def password_display(self, obj):
+        return obj.password
+
+
+class PreferTheaterSerializer(serializers.ModelSerializer):
+    preferTheater = serializers.SerializerMethodField('string_to_array')
+    # preferTheaters = serializers.CharField(source='preferTheater')
+
+    class Meta:
+        model = get_user_model()
+        fields = ('preferTheater', )
+
+    def string_to_array(self, obj):
+        data = obj.preferTheater
+        list_ = eval(data)
+        # print('list_: ', list_)
+        # print('type: ', type(list_))
+
+        return list_
+
+
+class MyInfoSerializer(serializers.ModelSerializer):
+    preferTheater = serializers.SerializerMethodField('string_to_array')
+
+    class Meta:
+        model = get_user_model()
+        fields = ('email', 'name', 'birthDate', 'phoneNumber', 'preferTheater')
+
+    def string_to_array(self, obj):
+        data = obj.preferTheater
+        list_ = eval(data)
+        # print('list_: ', list_)
+        # print('type: ', type(list_))
+
+        return list_
 
 
 class BookingHistorySerializer(serializers.ModelSerializer):
@@ -61,9 +118,12 @@ class MyPageSerializer(serializers.ModelSerializer):
     booking_history = serializers.SerializerMethodField('booking_history_display', help_text='최근 예매 내역')
     # booking_history = StringArrayField(source='', help_text='최근 예매 내역')
     watchedMovieNumber = serializers.SerializerMethodField('watched_movie_number_display', help_text='본 영화 개수')
+    preferTheater = serializers.SerializerMethodField('string_to_array')
+
+    # 위시무비 추가
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ('phoneNumber', 'preferTheater', 'booking_history', 'watchedMovieNumber',)
 
     def booking_history_display(self, obj):
@@ -89,5 +149,14 @@ class MyPageSerializer(serializers.ModelSerializer):
     def watched_movie_number_display(self, obj):
         data = WatchedMovie.objects.filter(user=obj)
         return len(data)
+
+    def string_to_array(self, obj):
+        data = obj.preferTheater
+        list_ = eval(data)
+        # print('list_: ', list_)
+        # print('type: ', type(list_))
+
+        return list_
+
 
 

@@ -1,5 +1,7 @@
 import datetime
 
+from django.contrib.auth.hashers import make_password
+from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -73,6 +75,178 @@ class UserCreateAPI(generics.CreateAPIView):  # user create 값 받기?
     serializer_class = UserCreateSerializer
     permission_classes = (AllowAny,)
 
+    def post(self, request, *args, **kwargs):
+        print('preferTheater: ', self.request.data['preferTheater'])
+
+        return Response(self)
+
+
+@swagger_auto_schema(method='post',
+                     responses={200: UserCreateSerializer(many=True)},
+                     operation_id='userCreate',
+                     operation_description="계정을 생성합니다.", )
+@api_view(['POST'])
+def user_create_view(request):
+    data = request.data
+    data_str = None
+
+    try:
+        if data['preferTheater']:
+            for i in range(len(data['preferTheater'])):
+                data['preferTheater'][i]['id'] = i
+            data_str = str(data['preferTheater'])
+    except KeyError:
+        data_str = \
+            "[{'id': 0, 'theater': '', 'region': ''}," \
+            "{'id': 1, 'theater': '', 'region': ''}, " \
+            "{'id': 2, 'theater': '', 'region': ''}]"
+
+    user = User.objects.create_user(
+        email=data['email'],
+        password=data['password'],
+        name=data['name'],
+        birthDate=data['birthDate'],
+        phoneNumber=data['phoneNumber'],
+        preferTheater=data_str
+    )
+
+    serializer = UserCreateSerializer(user)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get',
+                     responses={200: MyInfoSerializer(many=True)},
+                     operation_id='myInfo',
+                     operation_description="개인 정보를 열람합니다.", )
+@api_view(['get'])
+@permission_classes((IsAuthenticated, ))
+def my_info_view(request):
+    user = request.user
+
+    if not user:
+        return False
+    else:
+        serializer = MyInfoSerializer(user)
+        return Response(serializer.data)
+
+
+@swagger_auto_schema(method='post',
+                     responses={200: ModifyMyInfoSerializer(many=True)},
+                     operation_id='modifyMyInfo',
+                     operation_description="개인 정보를 수정합니다.", )
+@api_view(['post'])
+@permission_classes((IsAuthenticated, ))
+def modify_my_info_view(request):
+    user = request.user  # 로그인 유저 정보를 담음.
+
+    if not user:
+        return False
+    else:
+        data = request.data  # 사용자 요청 데이터를 담음.
+
+        # dictionary에 먼저 user 데이터를 담음.
+        userData = {
+            'phoneNumber': user.phoneNumber,
+            'preferTheater': user.preferTheater
+        }
+
+        try:
+            if data['preferTheater']:  # 선호영화관을 수정한다면
+                data_pre = data['preferTheater']
+                user_pre = eval(user.preferTheater)
+
+                for i in range(len(data_pre)):
+                    user_pre[i].update(data_pre[i])
+
+                # print('data_pre: ', data_pre)
+                # print('user_pre: ', user_pre)
+                data['preferTheater'] = str(user_pre)
+        except KeyError:
+            pass
+
+        try:
+            if data['password']:  # 패스워드도 수정한다면
+                userData.update({'password': user.password})
+                userData.update(data)
+
+                User.objects.filter(pk=user.id).update(
+                    password=make_password(userData['password']),
+                    phoneNumber=userData['phoneNumber'],
+                    preferTheater=userData['preferTheater']
+                )
+        except KeyError:  # 패스워드는 수정 안한다면
+            userData.update(data)
+            User.objects.filter(pk=user.id).update(
+                phoneNumber=userData['phoneNumber'],
+                preferTheater=userData['preferTheater']
+            )
+
+        # re = User.objects.get(pk=user.id)  # 값 확인용
+        # serializer = ModifyMyInfoSerializer(re)  # 값 확인용
+        # return Response(serializer.data)  # 값 확인용
+        return Response(True)
+
+
+@swagger_auto_schema(method='get',
+                     responses={200: PreferTheaterSerializer(many=True)},
+                     operation_id='showPreferTheater',
+                     operation_description="선호 영화관 등록/수정에서 선호영화관을 출력합니다.", )
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def show_prefer_theater_view(request):
+    user = request.user
+
+    if not user:
+        return False
+    else:
+        serializer = PreferTheaterSerializer(user)
+        return Response(serializer.data)
+
+
+@swagger_auto_schema(method='post',
+                     responses={200: PreferTheaterSerializer(many=True)},
+                     operation_id='modifyPreferTheater',
+                     operation_description="선호 영화관 등록/수정에서 선호영화관을 등록/수정합니다.", )
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def modify_prefer_theater_view(request, id):
+    user = request.user
+
+    if not user:
+        return False
+    else:
+        preferId =id
+        print('prefer_id: ', preferId, type(preferId))
+
+        userPrefer = eval(user.preferTheater)
+        print('userPrefer: ', userPrefer)
+
+        data = request.data
+        print('data: ', data, type(data))
+
+        print('request.data: ', request.data, type(request.data))
+
+        userPrefer[preferId].update(data)
+        print('updateData: ', userPrefer, type(userPrefer))
+
+        userPrefer_str = str(userPrefer)
+
+        # serializer = PreferTheaterSerializer(user, data=userPrefer[0], partial=True)
+        # print('serializer: ', serializer)
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return Response(serializer.data)
+
+        user.preferTheater = str(userPrefer)
+        print('user.preferTheater: ', user.preferTheater)
+
+        User.objects.filter(pk=user.id).update(
+            preferTheater=user.preferTheater
+        )
+
+        serializer = PreferTheaterSerializer(user)
+        return JsonResponse(serializer.data)
+
 
 @swagger_auto_schema(method='get',
                      responses={200: BookingHistorySerializer(many=True)},
@@ -90,6 +264,7 @@ def bookingHistoryView(request):
         queryset = BookingHistory.objects.filter(user=myUser)
         serializer = BookingHistorySerializer(queryset, many=True)
         return Response(serializer.data)
+
 
 @swagger_auto_schema(method='get',
                      responses={200: MyPageSerializer(many=True)},

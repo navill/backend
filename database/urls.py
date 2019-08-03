@@ -31,6 +31,7 @@ urlpatterns = [
     # path('reservationFirstView/', reservationFirstView), # 뷰 나누기 전 원본 url 남기기
     path('showMovies/', showMoviesView),
     path('reservationScheduleList/', reservationScheduleListView),
-    path('reservationSecondView/', reservationSecondView),
+    path('reservationSecond/', reservationSecondView),
+    path('movieDetail/', movie_detail_view),
 ]
 

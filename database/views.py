@@ -1,3 +1,4 @@
+import itertools
 import random, time, string
 
 from django.db.models import Q
@@ -6,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 
-from accounts.models import BookingHistory
+from accounts.models import BookingHistory, User
 from .serializers import *
 
 
@@ -77,7 +78,19 @@ from .serializers import *
 @api_view(['GET'])
 def showMoviesView(request):
     movie = Movie.objects.all().order_by('-booking_rate')  # 예매율 순으로 정렬됨
-    serializer = ShowMoviesSerializer(movie, many=True)
+    serializer = ShowMoviesSerializer(movie, many=True, context={'request': request})
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get',
+                     responses={200: MovieDetailSerializer()},
+                     operation_id='movieDetail',
+                     operation_description="영화 포스터를 클릭하면 나오는 영화 디테일 정보입니다")
+@api_view(['GET'])
+def movie_detail_view(request):
+    movie_detail_id = request.GET.get('movie')  # 영화 id를 받음
+    queryset = Movie_detail.objects.get(pk=movie_detail_id)
+    serializer = MovieDetailSerializer(queryset, context={'request': request})
     return Response(serializer.data)
 
 

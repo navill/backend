@@ -48,10 +48,19 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
     # type = serializers.SerializerMethodField('type_display', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')
     types = TypesArrayField(source='type', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')
     selected = serializers.BooleanField(default=False, help_text='예매 모달 표시 여부에 사용되는 변수')
+    test = serializers.SerializerMethodField('test_display')
 
     class Meta:
         model = Movie
-        fields = ('movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected')
+        fields = ('movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected', 'test')
+
+    def test_display(self, obj):
+        user = self.context['request'].user
+        print('user: ', user)
+        if user:
+            return True
+        else:
+            return False
 
     # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
 
@@ -117,6 +126,51 @@ class ReservationSecondStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule_time
         fields = ('schedule_id', 'seat_number', 'price', 'st_count')
+
+
+class MovieDetailSerializer(serializers.ModelSerializer):
+    img_url = serializers.SerializerMethodField('img_url_display')
+    title = serializers.SerializerMethodField('title_display')
+    booking_rate = serializers.SerializerMethodField('booking_rate_display')
+    age = serializers.SerializerMethodField('age_display')
+    types = TypesArrayField(source='movie.type')
+    release_date = serializers.SerializerMethodField('release_date_display')
+    director = serializers.SerializerMethodField('director_display')
+    cast = serializers.SerializerMethodField('cast_display')
+    genre = serializers.SerializerMethodField('genre_display')
+    description = serializers.SerializerMethodField('description_display')
+
+    class Meta:
+        model = Movie
+        fields = ('img_url', 'title', 'age', 'booking_rate', 'types', 'release_date', 'director', 'cast', 'genre', 'description')
+
+    def img_url_display(self, obj):
+        return obj.movie.img_url
+
+    def title_display(self, obj):
+        return obj.movie.title
+
+    def age_display(self, obj):
+        return obj.movie.get_age_display()
+
+    def booking_rate_display(self, obj):
+        return obj.movie.booking_rate
+
+    def release_date_display(self, obj):
+        return obj.movie.release_date
+
+    def genre_display(self, obj):
+        genre = f"{obj.genre} / {obj.running_time} 분"
+        return genre
+
+    def director_display(self, obj):
+        return obj.director
+
+    def cast_display(self, obj):
+        return obj.cast
+
+    def description_display(self, obj):
+        return obj.description
 
 
 class Return_200(serializers.Serializer):
