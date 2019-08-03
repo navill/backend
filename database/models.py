@@ -1,6 +1,5 @@
 from django.db import models
 from multiselectfield import MultiSelectField
-# from accounts.models import User
 
 AGE_RATE = (
     (0, '전체 관람'),
@@ -17,20 +16,20 @@ TYPE = (
     (5, '더빙'),
 )
 
+
 # Create your models here.
 
-# class Region(models.Model):
-#     name = models.CharField(max_length=100)
-# 
-#     class Meta:
-#         ordering = ['name']
-# 
-#     def __str__(self):
-#         return self.name
+class Region(models.Model):
+    name = models.CharField(max_length=100)
+
+    # class Meta:
+
+    def __str__(self):
+        return self.name
 
 
 class Cinema(models.Model):
-    # region_id = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='region_id')
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='region_id')
     cinema_name = models.CharField(max_length=100)
     detail = models.CharField(max_length=100)
 
@@ -66,7 +65,9 @@ class Movie(models.Model):
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
+    wish_user = models.ManyToManyField('accounts.User', null=True)
 
+    # star_rate 추가해야함
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
     def __str__(self):
@@ -86,8 +87,9 @@ class Movie_detail(models.Model):
 
 
 class Schedule_date(models.Model):
-    screen_id = models.ForeignKey(Screen, on_delete=models.SET_NULL, related_name="screen_id_schedule", blank=True,
-                                  null=True)
+    screen_id = models.ForeignKey(
+        Screen, on_delete=models.SET_NULL,
+        related_name="screen_id_schedule", blank=True, null=True)
     date = models.DateField()
 
     class Meta:
@@ -155,4 +157,3 @@ class Seat(models.Model):
         self.schedule_time.seat_count = seat_count
         self.schedule_time.save()
         super(Seat, self).save(*args, **kwargs)
-

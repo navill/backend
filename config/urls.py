@@ -54,7 +54,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('database/', include('database.urls')),
 ]
-
+# #
 # if settings.DEBUG:
 #     import debug_toolbar
 #

@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.fields import ListField
 
 from .models import BookingHistory, WatchedMovie, User
 
@@ -38,7 +37,8 @@ class BookingHistorySerializer(serializers.ModelSerializer):
     img_url = serializers.CharField(source='schedule_id.movie_id.img_url')  # 포스터 이미지
     title = serializers.CharField(source='schedule_id.movie_id.title', help_text='영화 제목')  # 영화 타이틀
     theater = serializers.CharField(source='schedule_id.date_id.screen_id.cinema_id.cinema_name')  # 지점
-    screen_number = serializers.IntegerField(source='schedule_id.date_id.screen_id.screen_number', help_text='상영관 번호')  # 상영관 번호
+    screen_number = serializers.IntegerField(source='schedule_id.date_id.screen_id.screen_number',
+                                             help_text='상영관 번호')  # 상영관 번호
     show_date = serializers.DateField(source='schedule_id.date_id.date', help_text='상영 일시')  # 상영 일시
     start_time = serializers.SerializerMethodField('time_display', help_text='상영 시작 시간, ex)15:30')  # 상영 시간
     booking_date = serializers.SerializerMethodField('booking_date_display', help_text='상영 시작 시간, ex)15:30')  # 상영 시간
@@ -77,10 +77,11 @@ class MyPageSerializer(serializers.ModelSerializer):
             theater = f"{schedule.date_id.screen_id.cinema_id} ({schedule.date_id.screen_id.screen_number}관)"
 
             dict_ = {
-                'img_url' : schedule.movie_id.img_url,
-                'title' : schedule.movie_id.title,
-                'booking_date' : b_obj.booking_date.strftime('%Y-%m-%d %H:%M'),
-                'theater' : theater,
+
+                'img_url': schedule.movie_id.img_url,
+                'title': schedule.movie_id.title,
+                'booking_date': b_obj.booking_date.strftime('%Y-%m-%d %H:%M'),
+                'theater': theater,
             }
 
             list_.append(dict_)
@@ -89,5 +90,3 @@ class MyPageSerializer(serializers.ModelSerializer):
     def watched_movie_number_display(self, obj):
         data = WatchedMovie.objects.filter(user=obj)
         return len(data)
-
-
