@@ -43,6 +43,7 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
     movie_id = serializers.IntegerField(source='id', help_text='영화 고유의 id 값')  # 영화 id
     age = serializers.CharField(source='get_age_display', help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
     types = TypesArrayField(source='type', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')
+    running_time = serializers.SerializerMethodField('running_time_display')
     selected = serializers.BooleanField(default=False, help_text='예매 모달 표시 여부에 사용되는 변수')
     is_wished = serializers.SerializerMethodField()
 
@@ -51,7 +52,7 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Movie
         fields = (
-            'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected', 'is_wished')
+            'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'running_time', 'selected', 'is_wished')
 
     def get_is_wished(self, obj):
         # check_wish = obj.filter(wish_user=req_user)
@@ -62,6 +63,9 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
             return True
         else:
             return False
+
+    def running_time_display(self, obj):
+        return obj.movie_id_detail.running_time
 
     # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
 
@@ -196,10 +200,22 @@ class CheckWishMovieSerializer(serializers.Serializer):
 
 class ShowRegionSerializer(serializers.ModelSerializer):
     # region_name = serializers.CharField(source='name')
+    getPreferList = serializers.SerializerMethodField('prefer_list_display', help_text='DB에서 선호상영관 선택 리스트를 불러옵니다.')
 
     class Meta:
         model = Region
-        fields = '__all__'
+        fields = ('getPreferList', )
+
+    def prefer_list_display(self, obj):
+        regions = obj.objects.all()
+        preferList = list()
+
+        for region in regions:
+            theaters = obj.objects.get(name=region).region_id.all()
+            for theater in theaters:
+                preferList.append({region.name: theater.cinema_name})
+
+        return preferList
 
 
 class Return_200(serializers.Serializer):

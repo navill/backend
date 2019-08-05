@@ -198,7 +198,7 @@ JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'config.jwt.jwt_response_payload_handler',
     'JWT_ALGORITHM': 'HS256',
     'JWT_ALLOW_REFRESH': True,  # Token Refresh 가능 여부
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),  # Token 만료시간
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),  # Token 만료시간, weeks, days, hours, minutes, seconds, milliseconds, microseconds
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=3),  # Token Refresh 가능 시간
 }
 
@@ -225,13 +225,14 @@ AWS_DEFAULT_ACL = secret.settings['AWS_DEFAULT_ACL']
 AWS_LOCATION = secret.settings['AWS_LOCATION']
 STATICFILES_STORAGE = secret.settings['STATICFILES_STORAGE']
 
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = [
-    'http://google.com',
-    'http://hostname.example.com',
-    'http://localhost:8000',
-    'http://localhost:4200',
-    'http://127.0.0.1:9000',
-]
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_WHITELIST = [
+#     'http://google.com',
+#     'http://hostname.example.com',
+#     'http://localhost:8000',
+#     'http://localhost:4200',
+#     'http://127.0.0.1:9000',
+#     'http://127.0.0.1:4200',
+# ]
 
 AUTH_USER_MODEL = 'accounts.User'

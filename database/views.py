@@ -1,6 +1,7 @@
 import random
 import string
 import time
+from datetime import datetime
 
 from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
@@ -109,7 +110,6 @@ def reservationScheduleListView(request):
     theaters = request.GET.getlist('theater')  # list type
     # 영화 타이틀
     movie_title = request.GET.getlist('movie')  # list type
-    print('movie_title: ', movie_title)
     # 상영 날짜
     date = request.GET.get('date')  # -> 2019-07-06
 
@@ -118,12 +118,14 @@ def reservationScheduleListView(request):
     if (len(theaters) > 3) or (len(movie_title) > 3):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    # time = datetime.now().strftime('%H:%M')  # 현재 시간
     # get 형식이라면~
     if theaters and date:  # get_queryset에 세 가지 중 두 가지(theater, date) 있을 경우
         for theater in theaters:
             movie_schedules |= Schedule_time.objects.filter(
                 date_id__screen_id__cinema_id__cinema_name=theater,
                 date_id__date=date,
+                # start_time__gte=time,  # 현재 시간 이후의 스케줄 필터링
             ).order_by('date', 'start_time')  # 날짜, 시간 순으로 정렬
 
         # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
@@ -259,6 +261,6 @@ def check_wishmovies_view(request):
                      operation_description="지역 정보를 출력합니다.")
 @api_view(['GET'])
 def show_region_view(request):
-    region = Region.objects.all()
-    serializer = ShowRegionSerializer(region, many=True)
+    # region = Region.objects.all()
+    serializer = ShowRegionSerializer(Region)
     return Response(serializer.data)

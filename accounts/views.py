@@ -2,14 +2,14 @@ import datetime
 
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
-from drf_yasg.utils import swagger_auto_schema
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import generics
+from rest_framework_jwt.views import ObtainJSONWebToken
+from rest_framework import generics, status
 
-from .models import BookingHistory, WatchedMovie, User
-from database.models import Cinema, Region
+from drf_yasg.utils import swagger_auto_schema
 from database.serializers import Return_error
 from .serializers import *
 
@@ -29,6 +29,64 @@ from .serializers import *
 #     queryset = User.objects.all()
 #     serializer_class = UserSerializer
 #     permission_classes = (AllowAny,)
+
+# import jwt,json
+# from rest_framework import views
+# from .models import User
+# class Login(views.APIView):
+#     def post(self, request, *args, **kwargs):
+#         if not request.data:
+#             return Response({'Error': "Please provide username/password"}, status="400")
+#
+#         print(request.data['email'])
+#         print(request.data['password'])
+#
+#         email = request.data['email']
+#         password = request.data['password']
+#
+#         user = User.objects.get(email=email)
+#         pw_check = user.check_password(password)
+#
+#         if not pw_check:
+#             return Response({'Error': "Invalid username/password"}, status="400")
+#         if user:
+#             payload = {
+#                 'email': user.email
+#             }
+#             jwt_token = {'token' : jwt.encode(payload, "admin12345").decode('ascii')}
+#             print('jwt_token: ', jwt_token)
+#
+#             token, created = Token.objects.get_or_create(user=user)
+#             # return HttpResponse(
+#             #     json.dumps(jwt_token),
+#             #     status=200,
+#             #     content_type="application/json"
+#             # )
+#             return Response({'token': 'JWT ' + jwt_token['token'], 'user': 1, 'name': 2},
+#                             status=status.HTTP_200_OK)
+#         else:
+#             return Response(
+#                 json.dumps({'Error': "Invalid credentials"}),
+#                 status=400,
+#                 content_type="application/json"
+#             )
+
+
+# class MyObtainJSONWebToken(ObtainJSONWebToken):
+#     """
+#     API View that receives a POST with a user's username and password.
+#
+#     Returns a JSON Web Token that can be used for authenticated requests.
+#     """
+#
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.serializer_class(data=request.data, context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         user = serializer.validated_data['user']
+#         token, created = Token.objects.get_or_create(user=user)
+#         jwt_token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
+#         print(type(token))
+#         return Response({'token': 'JWT '+token.key, 'user': token.user.email, 'name': user.name }, status=status.HTTP_200_OK)
 
 
 class UserUpdate(generics.UpdateAPIView):
