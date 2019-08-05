@@ -262,11 +262,25 @@ def check_wishmovies_view(request):
 
 
 @swagger_auto_schema(method='get',
-                     responses={200: ShowRegionSerializer(many=True)},
+                     responses={200: ShowRegionSerializer()},
                      operation_id='showRegion',
                      operation_description="지역 정보를 출력합니다.")
 @api_view(['GET'])
-def show_region_view(request):
-    # region = Region.objects.all()
-    serializer = ShowRegionSerializer(Region)
+def show_region_view(request):  # 지역-상영관 정보를 출력하는 뷰
+    regions = Region.objects.all()  # 지역의 모든 정보를 가져옴.
+    theaterList = list()  # 모든 상영관의 정보를 저장할 리스트.
+    queryset = list()  # serializer에 넘길 인덱스와 상영관이 딕셔너리로 저장된 리스트.
+
+    for region in regions:
+        theaters = Region.objects.get(name=region).region_id.all()  # 지역에 해당하는 모든 상영관을 가져옴.
+        for theater in theaters:
+            theaterList.append(theater)  # 상영관 하나씩 리스트에 추가.
+
+    # queryset 리스트에 딕셔너리 형태로 인덱스가 포함된 상영관 하나씩 넣음.
+    # QuerySets in Django are actually generators, not lists(https://docs.djangoproject.com/en/dev/ref/models/querysets/#ref-models-querysets)
+    # 위를 근거하여 serializer에서 하나의 쿼리당 index 값을 불러올 수 없어서 아래처럼 직접 index 값을 생성하여 넘겨줌.
+    for index, item in enumerate(theaterList):
+        queryset.append({'index': index, 'item': item})
+
+    serializer = ShowRegionSerializer(queryset, many=True)
     return Response(serializer.data)

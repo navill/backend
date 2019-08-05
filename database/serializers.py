@@ -203,28 +203,23 @@ class CheckWishMovieSerializer(serializers.Serializer):
 
 
 class ShowRegionSerializer(serializers.ModelSerializer):
-    # region_name = serializers.CharField(source='name')
-    getPreferList = serializers.SerializerMethodField('prefer_list_display', help_text='DB에서 선호상영관 선택 리스트를 불러옵니다.')
+    id = serializers.SerializerMethodField()
+    region = serializers.SerializerMethodField()
+    theater = serializers.SerializerMethodField()
+    selected = serializers.BooleanField(default=False, help_text='지역 모달 표시 여부에 사용되는 변수')
 
     class Meta:
         model = Region
-        fields = ('getPreferList', )
+        fields = ('id', 'region', 'theater', 'selected')
 
-    def prefer_list_display(self, obj):
-        regions = obj.objects.all()
-        preferList = list()
-        index = 0
+    def get_id(self, obj):
+        return obj['index']
 
-        for region in regions:
-            theaters = obj.objects.get(name=region).region_id.all()
-            for theater in theaters:
-                preferDict = {'id': index, 'theater':theater.cinema_name, 'region': region.name, 'selected': False}
-                # preferList.append({region.name: theater.cinema_name})
-                preferList.append(preferDict)
-                index += 1
+    def get_region(self, obj):
+        return obj['item'].region.name
 
-        print(preferList)
-        return preferList
+    def get_theater(self, obj):
+        return obj['item'].cinema_name
 
 
 class Return_200(serializers.Serializer):
