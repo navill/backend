@@ -30,7 +30,7 @@ from .serializers import *
 #     serializer_class = UserSerializer
 #     permission_classes = (AllowAny,)
 
-# import jwt,json
+# import jwt, json
 # from rest_framework import views
 # from .models import User
 # class Login(views.APIView):
@@ -53,16 +53,10 @@ from .serializers import *
 #             payload = {
 #                 'email': user.email
 #             }
-#             jwt_token = {'token' : jwt.encode(payload, "admin12345").decode('ascii')}
+#             jwt_token = {'token': jwt.encode(payload, "admin12345").decode('ascii')}
 #             print('jwt_token: ', jwt_token)
 #
-#             token, created = Token.objects.get_or_create(user=user)
-#             # return HttpResponse(
-#             #     json.dumps(jwt_token),
-#             #     status=200,
-#             #     content_type="application/json"
-#             # )
-#             return Response({'token': 'JWT ' + jwt_token['token'], 'user': 1, 'name': 2},
+#             return Response({'token': jwt.decode(jwt_token['token'], 'admin12345', algorithms=['HS256']), 'user': 1, 'name': 2},
 #                             status=status.HTTP_200_OK)
 #         else:
 #             return Response(
@@ -70,23 +64,6 @@ from .serializers import *
 #                 status=400,
 #                 content_type="application/json"
 #             )
-
-
-# class MyObtainJSONWebToken(ObtainJSONWebToken):
-#     """
-#     API View that receives a POST with a user's username and password.
-#
-#     Returns a JSON Web Token that can be used for authenticated requests.
-#     """
-#
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.serializer_class(data=request.data, context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data['user']
-#         token, created = Token.objects.get_or_create(user=user)
-#         jwt_token = jwt.encode(payload, JWT_SECRET, JWT_ALGORITHM)
-#         print(type(token))
-#         return Response({'token': 'JWT '+token.key, 'user': token.user.email, 'name': user.name }, status=status.HTTP_200_OK)
 
 
 class UserUpdate(generics.UpdateAPIView):

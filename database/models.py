@@ -59,13 +59,14 @@ class Screen(models.Model):
 
 class Movie(models.Model):
     img_url = models.CharField(max_length=200)
+    thumbnail_url = models.CharField(max_length=200, null=True)
     release_date = models.DateField()
     booking_rate = models.FloatField()
     title = models.CharField(max_length=100)
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
-    type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
-    wish_user = models.ManyToManyField('accounts.User')
+    type = MultiSelectField(choices=TYPE, max_choices=5, max_length=50)
+    wish_user = models.ManyToManyField('accounts.User', blank=True)
 
     # star_rate 추가해야함
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)

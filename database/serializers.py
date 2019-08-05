@@ -136,6 +136,7 @@ class ReservationSecondStepSerializer(serializers.ModelSerializer):
 
 class MovieDetailSerializer(serializers.ModelSerializer):
     img_url = serializers.SerializerMethodField('img_url_display')
+    thumbnail_url = serializers.SerializerMethodField('thumbnail_url_display')
     title = serializers.SerializerMethodField('title_display')
     booking_rate = serializers.SerializerMethodField('booking_rate_display')
     age = serializers.SerializerMethodField('age_display')
@@ -148,10 +149,13 @@ class MovieDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Movie
-        fields = ('img_url', 'title', 'age', 'booking_rate', 'types', 'release_date', 'director', 'cast', 'genre', 'description')
+        fields = ('img_url', 'thumbnail_url', 'title', 'age', 'booking_rate', 'types', 'release_date', 'director', 'cast', 'genre', 'description')
 
     def img_url_display(self, obj):
         return obj.movie.img_url
+
+    def thumbnail_url_display(self, obj):
+        return obj.movie.thumbnail_url
 
     def title_display(self, obj):
         return obj.movie.title

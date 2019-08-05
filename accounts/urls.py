@@ -5,8 +5,8 @@ from .views import *
 
 app_name = 'accounts'
 urlpatterns = [
-    path('login/', LoginView.as_view(template_name='accounts/accounts_login.html'), name='login'),  # 로그인 URL
-    path('logout/', LogoutView.as_view(template_name='accounts/accounts_logout.html'), name='logout'),  # 로그아웃 URL
+    # path('login/', Login.as_view(), name='login'),  # 로그인 URL
+    # path('logout/', LogoutView.as_view(template_name='accounts/accounts_logout.html'), name='logout'),  # 로그아웃 URL
     # path('', UserView.as_view()),  # 기본 rest_framework URL
     # path('detail/<int:pk>/', UserDetail.as_view()),  # 기본 rest_framework 디테일 URL
     path('update/<int:pk>/', UserUpdate.as_view()),  # 기본 rest_framework 디테일 URL

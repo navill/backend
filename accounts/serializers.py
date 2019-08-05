@@ -110,7 +110,7 @@ class ShowMyInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'getPreferList',)
+        fields = ('email', 'name', 'birthDate', 'phoneNumber', 'last_login', 'preferTheater', 'getPreferList',)
 
     def string_to_array(self, obj):
         data = obj.preferTheater

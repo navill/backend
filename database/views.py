@@ -74,6 +74,8 @@ from .serializers import *
 #         return Response(serializer.data)
 
 
+
+
 @swagger_auto_schema(method='get',
                      responses={200: ShowMoviesSerializer(many=True)},
                      operation_id='showMovies',
