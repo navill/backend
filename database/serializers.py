@@ -209,12 +209,17 @@ class ShowRegionSerializer(serializers.ModelSerializer):
     def prefer_list_display(self, obj):
         regions = obj.objects.all()
         preferList = list()
+        index = 0
 
         for region in regions:
             theaters = obj.objects.get(name=region).region_id.all()
             for theater in theaters:
-                preferList.append({region.name: theater.cinema_name})
+                preferDict = {'id': index, 'theater':theater.cinema_name, 'region': region.name, 'selected': False}
+                # preferList.append({region.name: theater.cinema_name})
+                preferList.append(preferDict)
+                index += 1
 
+        print(preferList)
         return preferList
 
 

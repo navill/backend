@@ -118,14 +118,19 @@ def reservationScheduleListView(request):
     if (len(theaters) > 3) or (len(movie_title) > 3):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    # time = datetime.now().strftime('%H:%M')  # 현재 시간
+    today = datetime.today().strftime('%Y-%m-%d')  # 오늘 날짜
+    time = datetime.now().strftime('%H:%M')  # 현재 시간
     # get 형식이라면~
     if theaters and date:  # get_queryset에 세 가지 중 두 가지(theater, date) 있을 경우
         for theater in theaters:
-            movie_schedules |= Schedule_time.objects.filter(
+            query = Q(
                 date_id__screen_id__cinema_id__cinema_name=theater,
-                date_id__date=date,
-                # start_time__gte=time,  # 현재 시간 이후의 스케줄 필터링
+                date_id__date=date)
+            if today == date:
+                query &= Q(start_time__gte=time)  # 현재 시간 이후의 스케줄 필터링
+
+            movie_schedules |= Schedule_time.objects.filter(
+                query
             ).order_by('date', 'start_time')  # 날짜, 시간 순으로 정렬
 
         # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
@@ -134,7 +139,6 @@ def reservationScheduleListView(request):
             my_filter_qs = Q()
             for movie in movie_title:
                 my_filter_qs |= Q(movie_id__title=movie)
-            print('my_filter_qs: ', my_filter_qs)
 
             queryset = movie_schedules.filter(my_filter_qs, date_id__date=date).select_related('schedule_time_seat')
             for i in queryset:
