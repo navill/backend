@@ -71,7 +71,7 @@ class User(AbstractUser):
 # -> 해결2 : 스케줄 id가 지워질 일이 없다고 가정하면 굳이 안고쳐도 됨.
 class BookingHistory(models.Model):
     booking_number = models.CharField(editable=False, max_length=50, primary_key=True)  # 예매 번호, 랜덤하게 생성
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')  # 예매한 유저
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users', null=True)  # 예매한 유저
     schedule_id = models.ForeignKey(Schedule_time, on_delete=models.SET_NULL, null=True)  # 예매한 영화 스케줄
     seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
     booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간
