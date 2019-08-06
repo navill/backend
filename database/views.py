@@ -262,6 +262,17 @@ def check_wishmovies_view(request):
 
 
 @swagger_auto_schema(method='get',
+                     responses={200: ShowWishMoviesInfoSerializer()},
+                     operation_id='showWishMoviesInfo',
+                     operation_description="보고싶어를 누른 영화 정보를 출력합니다.")
+@api_view(['GET'])
+def show_wish_movies_info_view(request):
+    wishMovies = request.user.wish_movie.all()
+    serializer = ShowWishMoviesInfoSerializer(wishMovies, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get',
                      responses={200: ShowRegionSerializer()},
                      operation_id='showRegion',
                      operation_description="지역 정보를 출력합니다.")

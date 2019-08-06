@@ -1,4 +1,4 @@
-import datetime
+
 
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
@@ -6,64 +6,37 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_jwt.views import ObtainJSONWebToken
+from rest_framework_jwt.serializers import JSONWebTokenSerializer
+from rest_framework_jwt.views import ObtainJSONWebToken, JSONWebTokenAPIView
 from rest_framework import generics, status
 
+from pytz import timezone, utc
 from drf_yasg.utils import swagger_auto_schema
 from database.serializers import Return_error
 from .serializers import *
 
 
-# class UserView(generics.ListCreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     permission_classes = (AllowAny,)
+import datetime
+class CustomObtainJSONWebToken(JSONWebTokenAPIView):
+    """
+    Login
 
+    계정을 로그인합니다.
+    """
+    serializer_class = JSONWebTokenSerializer
 
-# class SomeView(SomeGenericView): # 회원가입 등등 인증 없이도 동작하도록 설정할 떄 해당 위치에 아래 코드 삽입
-#     permission_classes = (AllowAny,)
+    def post(self, request, *args, **kwargs):
+        # request.user.last_login = datetime.now()
+        # request.user.save(update_fields=['last_login'])
 
-
-# class UserDetail(generics.RetrieveUpdateDestroyAPIView):
-#     renderer_classes = [JSONRenderer]  # 이 코드는 http://127.0.0.1:8000/user/?format=json 주소에 format 인자를 추가해 결정
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     permission_classes = (AllowAny,)
-
-# import jwt, json
-# from rest_framework import views
-# from .models import User
-# class Login(views.APIView):
-#     def post(self, request, *args, **kwargs):
-#         if not request.data:
-#             return Response({'Error': "Please provide username/password"}, status="400")
-#
-#         print(request.data['email'])
-#         print(request.data['password'])
-#
-#         email = request.data['email']
-#         password = request.data['password']
-#
-#         user = User.objects.get(email=email)
-#         pw_check = user.check_password(password)
-#
-#         if not pw_check:
-#             return Response({'Error': "Invalid username/password"}, status="400")
-#         if user:
-#             payload = {
-#                 'email': user.email
-#             }
-#             jwt_token = {'token': jwt.encode(payload, "admin12345").decode('ascii')}
-#             print('jwt_token: ', jwt_token)
-#
-#             return Response({'token': jwt.decode(jwt_token['token'], 'admin12345', algorithms=['HS256']), 'user': 1, 'name': 2},
-#                             status=status.HTTP_200_OK)
-#         else:
-#             return Response(
-#                 json.dumps({'Error': "Invalid credentials"}),
-#                 status=400,
-#                 content_type="application/json"
-#             )
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        jwt = serializer.validated_data
+        KST = timezone('Asia/Seoul')
+        now = datetime.datetime.utcnow()
+        jwt['user'].last_login = utc.localize(now).astimezone(KST)
+        jwt['user'].save(update_fields=['last_login'])
+        return Response({'token': jwt['token'], 'user': jwt['user'].email, 'name': jwt['user'].name}, status=status.HTTP_200_OK)
 
 
 class UserUpdate(generics.UpdateAPIView):
@@ -347,3 +320,16 @@ def my_page_view(request):
         serializer = MyPageSerializer(myUser)
         return Response(serializer.data)
 
+
+@swagger_auto_schema(method='get',
+                     responses={200: ShowWatchedMoviesInfoSerializer()},
+                     operation_id='showWatchedMoviesInfo',
+                     operation_description="본 영화 정보를 출력합니다.")
+@api_view(['GET'])
+def show_watched_movies_info_view(request):
+    movies = WatchedMovie.objects.filter(user=request.user)
+
+    print(movies[0].booking_history_id.schedule_id.movie_id.title)
+
+    serializer = ShowWatchedMoviesInfoSerializer(movies, many=True)
+    return Response(serializer.data)

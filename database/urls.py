@@ -10,4 +10,5 @@ urlpatterns = [
     path('movieDetail/', movie_detail_view),
     path('checkwish/', check_wishmovies_view),
     path('showregion/', show_region_view),
+    path('showWishMovies/', show_wish_movies_info_view)
 ]

@@ -43,7 +43,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('api/doc/', schema_view),
     # path('api/get_token/', obtain_auth_token),
-    path('api/token/', obtain_jwt_token),
+    # path('api/token/', obtain_jwt_token),
     path('api/token/verify/', verify_jwt_token),
     path('api/token/refresh/', refresh_jwt_token),
 

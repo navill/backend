@@ -17,8 +17,6 @@ TYPE = (
 )
 
 
-# Create your models here.
-
 class Region(models.Model):
     name = models.CharField(max_length=100)
 
@@ -66,7 +64,7 @@ class Movie(models.Model):
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=5, max_length=50)
-    wish_user = models.ManyToManyField('accounts.User', blank=True)
+    wish_user = models.ManyToManyField('accounts.User', blank=True, related_name='wish_movie')
 
     # star_rate 추가해야함
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
