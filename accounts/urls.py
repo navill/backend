@@ -15,4 +15,7 @@ urlpatterns = [
     # path('list/', UserListAPI.as_view(), name='user_list'),  # views 에 유저 list URL
     path('bookingHistory/', bookingHistoryView),
     path('myPage/', myPageView),
+    #
+    path('star_rate/', create_star_rate_view),
+    # path()
 ]

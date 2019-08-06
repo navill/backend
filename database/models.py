@@ -65,8 +65,9 @@ class Movie(models.Model):
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
-    wish_user = models.ManyToManyField('accounts.User', null=True)
-
+    wish_user = models.ManyToManyField('accounts.User')
+    # star_user = models.ManyToManyField('accounts.User', related_name='user_rate')
+    total_star_rate = models.IntegerField(default=0)
     # star_rate 추가해야함
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 

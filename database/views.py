@@ -243,3 +243,8 @@ def show_region_view(request):
     region = Region.objects.all()
     serializer = ShowRegionSerializer(region, many=True)
     return Response(serializer.data)
+
+#
+# def show_star_rate(reqeust):
+#     return Response(0)
+#

@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 
-from database.models import Schedule_time
+from database.models import Schedule_time, Movie
 
 
 class UserManager(BaseUserManager):
@@ -82,3 +82,8 @@ class WatchedMovie(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watched_movie_users')
     booking_history_id = models.ForeignKey(BookingHistory, on_delete=models.SET_NULL, null=True)
 
+
+class StarRate(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    rate = models.IntegerField(default=0)

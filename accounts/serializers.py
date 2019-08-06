@@ -1,13 +1,13 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import BookingHistory, WatchedMovie, User
+from .models import BookingHistory, WatchedMovie, User, StarRate
 
 
 class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 뜨는 정보
     class Meta:
         model = get_user_model()
-        fields = ['email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', ]
+        fields = ['email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', 'star_rate']
 
 
 # class UserListSerializer(serializers.ModelSerializer):  # 유저 목록 출력을 위한 시리얼 라이저
@@ -77,7 +77,6 @@ class MyPageSerializer(serializers.ModelSerializer):
             theater = f"{schedule.date_id.screen_id.cinema_id} ({schedule.date_id.screen_id.screen_number}관)"
 
             dict_ = {
-
                 'img_url': schedule.movie_id.img_url,
                 'title': schedule.movie_id.title,
                 'booking_date': b_obj.booking_date.strftime('%Y-%m-%d %H:%M'),
@@ -90,3 +89,22 @@ class MyPageSerializer(serializers.ModelSerializer):
     def watched_movie_number_display(self, obj):
         data = WatchedMovie.objects.filter(user=obj)
         return len(data)
+
+
+class UserStarRate(serializers.Serializer):
+    star_rate = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StarRate
+        fields = '__all__'
+
+    def get_star_rate(self, obj):
+        # user = get_user_model().objects.get(user=obj.user)
+        results = list()
+        user_rate = StarRate.objects.filter(user=obj)
+        for star_rate in user_rate:
+            rate_info = {
+                str(star_rate.movie): int(star_rate.rate)
+            }
+            results.append(rate_info)
+        return results

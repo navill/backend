@@ -9,4 +9,5 @@ urlpatterns = [
     path('reservationSecondView/', reservationSecondView),
     path('checkwish', check_wishmovies_view),
     path('showregion', show_region_view),
+    # path('star_rate', get_star_rate)
 ]

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.fields import ListField
 
 from .models import *
+from accounts.models import *
 
 
 class StringArrayField(ListField):
@@ -45,13 +46,12 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
     types = TypesArrayField(source='type', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')
     selected = serializers.BooleanField(default=False, help_text='예매 모달 표시 여부에 사용되는 변수')
     is_wished = serializers.SerializerMethodField()
+    avg_rate = serializers.SerializerMethodField()
 
-    # wish_user에 로그인 유저가 포함되어있는지 여부를 판단할 수 있는 boolean type 필드 생성
-    # -> get_wish_user() 생성
     class Meta:
         model = Movie
         fields = (
-            'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected', 'is_wished')
+            'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected', 'is_wished', 'avg_rate')
 
     def get_is_wished(self, obj):
         # check_wish = obj.filter(wish_user=req_user)
@@ -63,6 +63,15 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
             return True
         else:
             return False
+
+    # 평균 별점(소수점 둘째 자리까지)
+    def get_avg_rate(self, obj):
+        users = StarRate.objects.filter(movie=obj.id)
+        if not users:
+            return 0
+        total_rate = obj.total_star_rate
+        total_rate = round((total_rate / len(users)), 2)
+        return total_rate
 
     # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
 
