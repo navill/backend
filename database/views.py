@@ -211,7 +211,7 @@ def reservationSecondView(request):
             # save Seat table
             selected_schedule.schedule_time_seat.save()
             seat_numbers = ','.join(booking_data['seat_number'])
-            bookingHistory(request, selected_schedule, seat_numbers)  # 예매 내역에 저장
+            bookingHistory(request, selected_schedule, seat_numbers, booking_data['price'])  # 예매 내역에 저장
 
             serializer = Return_200(selected_schedule)
             # print(booked_seat_numbers)
@@ -221,7 +221,7 @@ def reservationSecondView(request):
             return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 
-def bookingHistory(request, selected_schedule, seat_numbers):
+def bookingHistory(request, selected_schedule, seat_numbers, total_price):
     # def booking_history
     booking_number = random_booking_number()
 
@@ -230,6 +230,7 @@ def bookingHistory(request, selected_schedule, seat_numbers):
         user=request.user,
         schedule_id=selected_schedule,
         seat_number=seat_numbers,
+        total_price=total_price
     )
 
 

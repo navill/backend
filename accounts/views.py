@@ -135,6 +135,7 @@ def myPageView(request):
                     booking_history_id=item,
                     user=myUser,
                 )
+
             watched = False
 
         serializer = MyPageSerializer(myUser)
@@ -444,7 +445,6 @@ def update_prefer_theater_view(request, id):
 @permission_classes((IsAuthenticated,))
 def booking_history_view(request):
     myUser = request.user
-
     if not myUser:
         serializer = Return_error('1')
         return Response(serializer.data)
@@ -494,6 +494,8 @@ def my_page_view(request):
                     booking_history_id=item,
                     user=myUser,
                 )
+                myUser.mileage = item.total_price * 0.1
+                myUser.save()
             watched = False
 
         serializer = MyPageSerializer(myUser)
