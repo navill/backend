@@ -40,20 +40,23 @@ class QuerySerializer(serializers.ModelSerializer):
         fields = ('theater', 'movie', 'date')
 
 
-class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
+# movie -> user_rate
+# movie_detail -> user_rate, avg_rate
+class ShowMoviesSerializer(serializers.ModelSerializer):
     movie_id = serializers.IntegerField(source='id', help_text='영화 고유의 id 값')  # 영화 id
     age = serializers.CharField(source='get_age_display', help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
     types = TypesArrayField(source='type', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')
     running_time = serializers.SerializerMethodField('running_time_display')
     selected = serializers.BooleanField(default=False, help_text='예매 모달 표시 여부에 사용되는 변수')
     is_wished = serializers.SerializerMethodField()
-    avg_rate = serializers.SerializerMethodField()
+    # avg_rate = serializers.SerializerMethodField()
+    user_rate = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
         fields = (
-        'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'running_time', 'selected',
-        'is_wished', 'avg_rate')
+            'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'running_time', 'selected',
+            'is_wished', 'user_rate')
 
     def get_is_wished(self, obj):
         # check_wish = obj.filter(wish_user=req_user)
@@ -65,41 +68,20 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
         else:
             return False
 
-# 평균 별점(소수점 둘째 자리까지)
-    def get_avg_rate(self, obj):
-        users = StarRate.objects.filter(movie=obj.id)
-        if not users:
+    # 현재 이 코드는 accounts.UserStarRate에 있는 메소드와 동일한 구조(전달받은 인자 obj가 다르다)
+    # refactoring이 필요하다
+    def get_user_rate(self, obj):
+        user = self.context['request'].user
+        user_rate = StarRate.objects.filter(user=user, movie=obj.id)
+        # print(dir(user_rate))
+        if user_rate:
+            result = user_rate.get()
+            return result.rate
+        else:
             return 0
-        total_rate = obj.total_star_rate
-        total_rate = round((total_rate / len(users)), 2)
-        return total_rate
-
 
     def running_time_display(self, obj):
         return obj.movie_id_detail.running_time
-
-
-
-# type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
-
-# def type_display(self, obj):
-#     # sample: 'get_XXXX_display'
-#     # get_type_display = str('get_type_display'.format(field_name=self.field_name))
-#     # retrieve instance method
-#     # method = getattr(value, 'get_type')
-#     # finally use instance method to return result of get_XXXX_display()
-#     list_ = obj.get_type_display().replace(', ', ',').split(',')
-#     # list_ = value.get_type_display().replace(', ', ',').split(',')
-#     temp_list = list()
-#     if ('자막' or '더빙') in list_:
-#         for i in range(0, len(list_), 2):
-#             temp_list.append(list_[i:i + 2])
-#         # type_result = ','.join(list[0])
-#         # print(type_result)
-#     else:
-#         for i in range(0, len(list_)):
-#             temp_list.append(list_[i:i + 1])
-#     return temp_list
 
 
 class ReservationScheduleListSerializer(serializers.ModelSerializer):
@@ -159,12 +141,14 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     cast = serializers.SerializerMethodField('cast_display')
     genre = serializers.SerializerMethodField('genre_display')
     description = serializers.SerializerMethodField('description_display')
+    avg_rate = serializers.SerializerMethodField()
+    user_rate = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
         fields = (
-        'img_url', 'thumbnail_url', 'title', 'age', 'booking_rate', 'types', 'release_date', 'director', 'cast',
-        'genre', 'description')
+            'img_url', 'thumbnail_url', 'title', 'age', 'booking_rate', 'types', 'release_date', 'director', 'cast',
+            'genre', 'description', 'avg_rate', 'user_rate')
 
     def img_url_display(self, obj):
         return obj.movie.img_url
@@ -196,6 +180,22 @@ class MovieDetailSerializer(serializers.ModelSerializer):
 
     def description_display(self, obj):
         return obj.description
+
+    # 평균 별점(소수점 둘째 자리까지)
+    # obj = movie의 객체
+    def get_avg_rate(self, obj):
+        users = StarRate.objects.filter(movie=obj.id)
+        movie = Movie.objects.get(id=obj.id)
+        if not users:
+            return 0
+        total_rate = movie.total_star_rate
+        total_rate = round((total_rate / len(users)), 2)
+        return total_rate
+
+    def get_user_rate(self, obj):
+        user = self.context['request'].user
+        user_rate = StarRate.objects.get(user=user, movie_id=obj.id)
+        return user_rate.rate
 
 
 class CheckWishMovieSerializer(serializers.Serializer):
