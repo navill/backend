@@ -110,10 +110,11 @@ from pytz import timezone
 class ShowMyInfoSerializer(serializers.ModelSerializer):
     preferTheater = serializers.SerializerMethodField('string_to_array')
     getPreferList = serializers.SerializerMethodField('prefer_list_display', help_text='DB에서 선호상영관 선택 리스트를 불러옵니다.')
+    last_login = serializers.SerializerMethodField(help_text='마지막 로그인 시간')
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'getPreferList',)
+        fields = ('email', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'getPreferList', 'last_login')
 
     def string_to_array(self, obj):
         data = obj.preferTheater
@@ -133,6 +134,12 @@ class ShowMyInfoSerializer(serializers.ModelSerializer):
                 preferList.append({region.name: theater.cinema_name})
 
         return preferList
+
+    def get_last_login(self, obj):
+        KST = timezone('Asia/Seoul')
+        last_login = obj.last_login.astimezone(KST)
+
+        return last_login.strftime('%Y-%m-%d %H:%M:%S')
 
 
 class BookingHistorySerializer(serializers.ModelSerializer):
@@ -198,11 +205,11 @@ class MyPageSerializer(serializers.ModelSerializer):
     watchedMovieNumber = serializers.SerializerMethodField('watched_movie_number_display', help_text='본 영화 개수')
     wishMovieNumber = serializers.SerializerMethodField('wish_movie_number_display', help_text='선호 영화 개수')
     preferTheater = serializers.SerializerMethodField('string_to_array')
-    last_login = serializers.SerializerMethodField(help_text='마지막 로그인 시간')
+
 
     class Meta:
         model = get_user_model()
-        fields = ('phoneNumber', 'preferTheater', 'booking_history', 'watchedMovieNumber', 'wishMovieNumber', 'last_login')
+        fields = ('phoneNumber', 'preferTheater', 'booking_history', 'watchedMovieNumber', 'wishMovieNumber')
 
     def booking_history_display(self, obj):
         data = obj.watched_movie_users.filter(user=obj)
@@ -240,12 +247,6 @@ class MyPageSerializer(serializers.ModelSerializer):
         else:
             return None
 
-    def get_last_login(self, obj):
-        KST = timezone('Asia/Seoul')
-        last_login = obj.last_login.astimezone(KST)
-
-        return last_login.strftime('%Y-%m-%d %H:%M:%S')
-
 
 class UserStarRate(serializers.Serializer):
     star_rate = serializers.SerializerMethodField()
@@ -264,3 +265,4 @@ class UserStarRate(serializers.Serializer):
             }
             results.append(rate_info)
         return results
+
