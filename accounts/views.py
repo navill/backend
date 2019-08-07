@@ -1,5 +1,3 @@
-import datetime
-
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
