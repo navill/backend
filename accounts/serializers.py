@@ -13,7 +13,6 @@ class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 �
         fields = ['email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater']
 
 
-
 # class UserListSerializer(serializers.ModelSerializer):  # 유저 목록 출력을 위한 시리얼 라이저
 #     class Meta:
 #         model = get_user_model()
@@ -117,7 +116,8 @@ class ShowMyInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'getPreferList', 'last_login')
+        fields = (
+        'email', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'getPreferList', 'last_login', 'mileage')
 
     def string_to_array(self, obj):
         data = obj.preferTheater
@@ -210,12 +210,11 @@ class MyPageSerializer(serializers.ModelSerializer):
     wishMovieNumber = serializers.SerializerMethodField('wish_movie_number_display', help_text='선호 영화 개수')
     preferTheater = serializers.SerializerMethodField('string_to_array')
 
-
     class Meta:
         model = get_user_model()
 
         fields = (
-        'phoneNumber', 'preferTheater', 'booking_history', 'watchedMovieNumber', 'wishMovieNumber')
+            'phoneNumber', 'preferTheater', 'booking_history', 'watchedMovieNumber', 'wishMovieNumber', 'mileage')
 
     def booking_history_display(self, obj):
         data = obj.watched_movie_users.filter(user=obj)
