@@ -514,6 +514,10 @@ def show_watched_movies_info_view(request):
     return Response(serializer.data)
 
 
+@swagger_auto_schema(method='get',
+                     responses={200: UserStarRate()},
+                     operation_id='createStarRate',
+                     operation_description="유저 평점을 생성합니다.")
 @api_view(['GET'])
 def create_star_rate_view(request):
     user_rate = int(request.GET.get('star_rate'))
