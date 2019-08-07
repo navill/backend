@@ -51,7 +51,7 @@ class Schedule_timeAdmin(admin.ModelAdmin):
 
 admin.site.register(Schedule_date, Schedule_dateAdmin)
 admin.site.register(Schedule_time, Schedule_timeAdmin)
-
+admin.site.register(PriceInfo)
 
 class SeatAdmin(admin.ModelAdmin):
     list_display = ['schedule_time', 'seat_number']

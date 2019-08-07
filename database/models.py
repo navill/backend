@@ -160,3 +160,16 @@ class Seat(models.Model):
             self.schedule_time.seat_count = seat_count
             self.schedule_time.save()
         super(Seat, self).save(*args, **kwargs)
+
+
+class PriceInfo(models.Model):
+    # price: {
+    #     normal: 11000,
+    #     youth: 7000,
+    #     favor: 5000
+    # }
+    type = models.CharField(max_length=10, default='')
+    price = models.IntegerField(default=0)
+    # field1 - name
+    # field2 - price
+    
