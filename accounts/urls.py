@@ -24,4 +24,5 @@ urlpatterns = [
     path('updatePreferTheater/<int:id>', update_prefer_theater_view),
     # 별점 추가
     path('star_rate/', create_star_rate_view),
+    path('check_email/', check_email_view),
 ]

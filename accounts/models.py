@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from database.models import Schedule_time, Movie
@@ -40,6 +40,8 @@ class UserManager(BaseUserManager):
 
 
 import json
+
+
 class User(AbstractUser):
     """User model."""
     # username -> email 변경 할당 부분
@@ -56,6 +58,7 @@ class User(AbstractUser):
     phoneNumber = models.CharField(verbose_name='핸드폰 번호', max_length=15, blank=True, null=True)  # CharField
     birthDate = models.DateField(verbose_name='생년월일', null=True, blank=True)  # DateField
     name = models.CharField(verbose_name='이름', max_length=30)
+
     # wishMovie = models.CharField(verbose_name='보고싶어', max_length=20, blank=True)  # CharField, 불필요한 필드로 판단
 
     def set_preferTheater(self, x):
@@ -63,6 +66,7 @@ class User(AbstractUser):
 
     def get_preferTheater(self):
         return json.loads(self.preferTheater)
+
 
 # 테이블 재설계 필요
 # -> 이유 : 현재 이 테이블은 삭제 될 가능성이 있는 스케줄 id에 상당히 의존적임
