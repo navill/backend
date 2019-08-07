@@ -179,12 +179,12 @@ def create_star_rate_view(request):
             # for i in star_obj:
             obj.save()
         # star_obj.save()
-    else:
+    elif user_rate is '0':
         if star_obj:
             obj = StarRate.objects.get(user=request.user, movie=movie_id)
-            total_rate = total_rate - obj.rate
-            movie.total_star_rate = total_rate
-            movie.save()
+            # total_rate = total_rate - obj.rate
+            # movie.total_star_rate = total_rate
+            # movie.save()
             StarRate.objects.filter(id=obj.id).delete()
         else:
             pass
