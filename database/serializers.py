@@ -224,13 +224,14 @@ class CheckWishMovieSerializer(serializers.Serializer):
 
 
 class ShowWishMoviesInfoSerializer(serializers.Serializer):
+    movie_id = serializers.SerializerMethodField()
     img_url = serializers.SerializerMethodField()
     age = serializers.CharField(source='get_age_display', help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
     title = serializers.SerializerMethodField()
     booking_rate = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('img_url', 'age', 'title', 'booking_rate')
+        fields = ('movie_id', 'img_url', 'age', 'title', 'booking_rate')
 
     def get_img_url(self, obj):
         return obj.img_url
@@ -240,6 +241,9 @@ class ShowWishMoviesInfoSerializer(serializers.Serializer):
 
     def get_booking_rate(self, obj):
         return obj.booking_rate
+
+    def get_movie_id(self, obj):
+        return obj.id
 
 
 class ShowRegionSerializer(serializers.ModelSerializer):
