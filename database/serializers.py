@@ -72,11 +72,14 @@ class ShowMoviesSerializer(serializers.ModelSerializer):
     # refactoring이 필요하다
     def get_user_rate(self, obj):
         user = self.context['request'].user
-        user_rate = StarRate.objects.filter(user=user, movie=obj.id)
-        # print(dir(user_rate))
-        if user_rate:
-            result = user_rate.get()
-            return result.rate
+        if not user:
+            user_rate = StarRate.objects.filter(user=user, movie=obj.id)
+            # print(dir(user_rate))
+            if user_rate:
+                result = user_rate.get()
+                return result.rate
+            else:
+                return 0
         else:
             return 0
 
@@ -194,8 +197,11 @@ class MovieDetailSerializer(serializers.ModelSerializer):
 
     def get_user_rate(self, obj):
         user = self.context['request'].user
-        user_rate = StarRate.objects.get(user=user, movie_id=obj.id)
-        return user_rate.rate
+        if not StarRate.objects.filter(user=user, movie=obj.id):
+            return 0
+        else:
+            user_rate = StarRate.objects.get(user=user, movie_id=obj.id)
+            return user_rate.rate
 
 
 class CheckWishMovieSerializer(serializers.Serializer):

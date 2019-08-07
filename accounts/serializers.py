@@ -3,8 +3,8 @@ import datetime
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import BookingHistory, WatchedMovie, User, StarRate
 from database.models import Region, Movie
+from .models import BookingHistory, WatchedMovie, StarRate
 
 
 class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 뜨는 정보
@@ -49,13 +49,13 @@ class UserCreateSerializer(serializers.ModelSerializer):
     #     print('validated_data: ', validated_data)
     #     print('type: ', validated_data)
 
-        # user = get_user_model().objects.create(**validated_data)
-        # user.set_password(validated_data.get('password'))
-        # user.is_active = True
-        # user.save()
+    # user = get_user_model().objects.create(**validated_data)
+    # user.set_password(validated_data.get('password'))
+    # user.is_active = True
+    # user.save()
 
-        # return user
-        # return user
+    # return user
+    # return user
 
 
 class UpdateMyInfoSerializer(serializers.ModelSerializer):
@@ -107,6 +107,8 @@ class PreferTheaterSerializer(serializers.ModelSerializer):
 
 
 from pytz import timezone
+
+
 class ShowMyInfoSerializer(serializers.ModelSerializer):
     preferTheater = serializers.SerializerMethodField('string_to_array')
     getPreferList = serializers.SerializerMethodField('prefer_list_display', help_text='DB에서 선호상영관 선택 리스트를 불러옵니다.')
@@ -189,8 +191,9 @@ class ShowWatchedMoviesInfoSerializer(serializers.Serializer):
         running_time = obj.booking_history_id.schedule_id.movie_id.movie_id_detail.running_time
         start_time = obj.booking_history_id.schedule_id.start_time
         schedule_date = obj.booking_history_id.schedule_id.date
-        timeToDatetime = datetime.datetime(schedule_date.year, schedule_date.month, schedule_date.day, start_time.hour, start_time.minute, start_time.second)
-        end_time = timeToDatetime + datetime.timedelta(0, running_time*60)
+        timeToDatetime = datetime.datetime(schedule_date.year, schedule_date.month, schedule_date.day, start_time.hour,
+                                           start_time.minute, start_time.second)
+        end_time = timeToDatetime + datetime.timedelta(0, running_time * 60)
         return f"{timeToDatetime.strftime('%Y-%m-%d %H:%M')}-{end_time.strftime('%H:%M')}"
 
     def get_theater_headcount(self, obj):
@@ -209,7 +212,9 @@ class MyPageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('phoneNumber', 'preferTheater', 'booking_history', 'watchedMovieNumber', 'wishMovieNumber')
+
+        fields = (
+        'phoneNumber', 'preferTheater', 'booking_history', 'watchedMovieNumber', 'wishMovieNumber', 'last_login')
 
     def booking_history_display(self, obj):
         data = obj.watched_movie_users.filter(user=obj)
@@ -265,4 +270,3 @@ class UserStarRate(serializers.Serializer):
             }
             results.append(rate_info)
         return results
-

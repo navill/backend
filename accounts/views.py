@@ -10,6 +10,7 @@ from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt.views import JSONWebTokenAPIView
 
 from database.serializers import Return_error
+from .models import *
 from .serializers import *
 
 
@@ -564,3 +565,19 @@ def create_star_rate_view(request):
             pass
     serializer = UserStarRate(request.user)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+def check_email_view(request):
+    users = User.objects.all()
+    emails = [email for email in users.values('email')]
+    target_email = request.data['email']
+    temp_list = list()
+    for i in emails:
+        _, email = i.popitem()
+        temp_list.append(email)
+    if target_email in temp_list:
+        result = False
+    else:
+        result = True
+    return Response(result)
