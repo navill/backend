@@ -6,6 +6,7 @@ app_name = 'database'
 urlpatterns = [
     path('showMovies/', showMoviesView),
     path('reservationScheduleList/', reservationScheduleListView),
+
     path('reservationSecond/', reservationSecondView),
     path('movieDetail/', movie_detail_view),
     path('checkwish/', check_wishmovies_view),

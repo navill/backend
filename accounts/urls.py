@@ -22,4 +22,6 @@ urlpatterns = [
     path('updateMyInfo/', update_my_info_view),
     path('updatePreferTheater/', show_prefer_theater_view),
     path('updatePreferTheater/<int:id>', update_prefer_theater_view),
+    # 별점 추가
+    path('star_rate/', create_star_rate_view),
 ]

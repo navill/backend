@@ -295,3 +295,8 @@ def show_region_view(request):  # 지역-상영관 정보를 출력하는 뷰
 
     serializer = ShowRegionSerializer(queryset, many=True)
     return Response(serializer.data)
+
+#
+# def show_star_rate(reqeust):
+#     return Response(0)
+#
