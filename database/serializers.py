@@ -102,12 +102,14 @@ class ReservationScheduleListSerializer(serializers.ModelSerializer):
     age = serializers.CharField(source='get_age_display')  # 영화 연령 제한
     running_time = serializers.IntegerField(
         source='movie_id.movie_id_detail.running_time')  # 영화 러닝 타임, related_name으로 oneToone 불러오기
+    img_url = serializers.CharField(source='movie_id.img_url')
+    price = serializers.SerializerMethodField()
 
     class Meta:
         model = Schedule_time
         fields = (
             'schedule_id', 'theater', 'screen', 'age', 'running_time', 'date', 'start_time', 'movie', 'types',
-            'st_count', 'total_seat', 'seat_number')
+            'st_count', 'total_seat', 'seat_number', 'img_url', 'price')
 
     def time_display(self, obj):
         time = None
@@ -117,6 +119,17 @@ class ReservationScheduleListSerializer(serializers.ModelSerializer):
             time = obj.show_time.strftime('%H:%M')
         finally:
             return time
+
+    def get_price(self, obj):
+        prices = PriceInfo.objects.all()
+        price_list = prices.values_list()
+        # price = [[a,b,c] for a,b,c in price_list]
+        result = dict()
+        for i in price_list:
+            _, price_type, price_value = i
+            result[price_type] = price_value
+        return result
+
 
 
 class ReservationSecondStepSerializer(serializers.ModelSerializer):
