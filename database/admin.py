@@ -66,3 +66,8 @@ class MovieAdmin(admin.ModelAdmin):
 
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(Movie_detail)
+
+class RegionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+
+admin.site.register(Region, RegionAdmin)

@@ -17,8 +17,6 @@ TYPE = (
 )
 
 
-# Create your models here.
-
 class Region(models.Model):
     name = models.CharField(max_length=100)
 
@@ -59,15 +57,17 @@ class Screen(models.Model):
 
 class Movie(models.Model):
     img_url = models.CharField(max_length=200)
+    thumbnail_url = models.CharField(max_length=200, null=True)
     release_date = models.DateField()
     booking_rate = models.FloatField()
     title = models.CharField(max_length=100)
     age = models.IntegerField(choices=AGE_RATE, default=0)
     # type = models.IntegerField(choices=TYPE, default=0)
     type = MultiSelectField(choices=TYPE, max_choices=4, max_length=50)
-    wish_user = models.ManyToManyField('accounts.User')
+    wish_user = models.ManyToManyField('accounts.User', blank=True, related_name='wish_movie')
     # star_user = models.ManyToManyField('accounts.User', related_name='user_rate')
     total_star_rate = models.IntegerField(default=0)
+
     # star_rate 추가해야함
     # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
 
@@ -154,7 +154,9 @@ class Seat(models.Model):
     seat_number = models.TextField(blank=True, default='')
 
     def save(self, *args, **kwargs):
-        seat_count = len(str(self.seat_number).split(','))
-        self.schedule_time.seat_count = seat_count
-        self.schedule_time.save()
+        booked_list = str(self.seat_number).split(',')
+        if not booked_list == ['']:
+            seat_count = len(booked_list)
+            self.schedule_time.seat_count = seat_count
+            self.schedule_time.save()
         super(Seat, self).save(*args, **kwargs)

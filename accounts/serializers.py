@@ -1,7 +1,10 @@
+import datetime
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from .models import BookingHistory, WatchedMovie, User, StarRate
+from database.models import Region, Movie
 
 
 class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 뜨는 정보
@@ -16,21 +19,120 @@ class UserSerializer(serializers.ModelSerializer):  # rest_framework list 에 �
 #         fields = ['id', 'email', 'name', 'password', 'birthDate', 'phoneNumber', 'preferTheater', ]
 
 
+class UserCreateInPreferListSerializer(serializers.Serializer):
+    getPreferList = serializers.SerializerMethodField('prefer_list_display', help_text='DB에서 선호상영관 선택 리스트를 불러옵니다.')
+
+    class Meta:
+        fields = ('getPreferList',)
+
+    def prefer_list_display(self, obj):
+        regions = Region.objects.all()
+        preferList = list()
+
+        for region in regions:
+            theaters = Region.objects.get(name=region).region_id.all()
+            for theater in theaters:
+                preferList.append({region.name: theater.cinema_name})
+
+        return preferList
+
+
 # 회원 가입 할 때 필요한 필드들에 관한 시리얼라이저
 # 유저 생성 할때 입력받을 필드
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['email', 'password', 'name', 'birthDate', 'phoneNumber', 'preferTheater', ]
+        fields = ['email', 'password', 'name', 'birthDate', 'phoneNumber', 'preferTheater']
 
     # password 암호화 = 회원가입 기능 실행 시 리스트 목록에 password 암호화 되어 나타남
-    def create(self, validated_data):
-        user = get_user_model().objects.create(**validated_data)
-        user.set_password(validated_data.get('password'))
-        user.is_active = True
-        user.save()
+    # def create(self, validated_data):
+    #     print('validated_data: ', validated_data)
+    #     print('type: ', validated_data)
 
-        return user
+        # user = get_user_model().objects.create(**validated_data)
+        # user.set_password(validated_data.get('password'))
+        # user.is_active = True
+        # user.save()
+
+        # return user
+        # return user
+
+
+class UpdateMyInfoSerializer(serializers.ModelSerializer):
+    preferTheater = serializers.SerializerMethodField('string_to_array')
+    password = serializers.SerializerMethodField('password_display', required=False)
+
+    class Meta:
+        model = get_user_model()
+        fields = ('phoneNumber', 'preferTheater', 'password')
+
+    def string_to_array(self, obj):
+        data = obj.preferTheater
+        if data:
+            list_ = eval(data)
+            return list_
+        else:
+            return None
+
+    def password_display(self, obj):
+        return obj.password
+
+
+class PreferTheaterSerializer(serializers.ModelSerializer):
+    preferTheater = serializers.SerializerMethodField('string_to_array')
+    getPreferList = serializers.SerializerMethodField('prefer_list_display', help_text='DB에서 선호상영관 선택 리스트를 불러옵니다.')
+
+    class Meta:
+        model = get_user_model()
+        fields = ('preferTheater', 'getPreferList')
+
+    def string_to_array(self, obj):
+        data = obj.preferTheater
+        if data:
+            list_ = eval(data)
+            return list_
+        else:
+            return None
+
+    def prefer_list_display(self, obj):
+        regions = Region.objects.all()
+        preferList = list()
+
+        for region in regions:
+            theaters = Region.objects.get(name=region).region_id.all()
+            for theater in theaters:
+                preferList.append({region.name: theater.cinema_name})
+
+        return preferList
+
+
+from pytz import timezone
+class ShowMyInfoSerializer(serializers.ModelSerializer):
+    preferTheater = serializers.SerializerMethodField('string_to_array')
+    getPreferList = serializers.SerializerMethodField('prefer_list_display', help_text='DB에서 선호상영관 선택 리스트를 불러옵니다.')
+
+    class Meta:
+        model = get_user_model()
+        fields = ('email', 'name', 'birthDate', 'phoneNumber', 'preferTheater', 'getPreferList',)
+
+    def string_to_array(self, obj):
+        data = obj.preferTheater
+        if data:
+            list_ = eval(data)
+            return list_
+        else:
+            return None
+
+    def prefer_list_display(self, obj):
+        regions = Region.objects.all()
+        preferList = list()
+
+        for region in regions:
+            theaters = Region.objects.get(name=region).region_id.all()
+            for theater in theaters:
+                preferList.append({region.name: theater.cinema_name})
+
+        return preferList
 
 
 class BookingHistorySerializer(serializers.ModelSerializer):
@@ -57,14 +159,50 @@ class BookingHistorySerializer(serializers.ModelSerializer):
         return datetime
 
 
+class ShowWatchedMoviesInfoSerializer(serializers.Serializer):
+    img_url = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+    title = serializers.SerializerMethodField()
+    schedule_date = serializers.SerializerMethodField()
+    theater_headcount = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = ('img_url', 'age', 'title', 'schedule_date', 'theater_headcount',)
+
+    def get_img_url(self, obj):
+        return obj.booking_history_id.schedule_id.movie_id.img_url
+
+    def get_age(self, obj):
+        return obj.booking_history_id.schedule_id.movie_id.get_age_display()
+
+    def get_title(self, obj):
+        return obj.booking_history_id.schedule_id.movie_id.title
+
+    def get_schedule_date(self, obj):
+        running_time = obj.booking_history_id.schedule_id.movie_id.movie_id_detail.running_time
+        start_time = obj.booking_history_id.schedule_id.start_time
+        schedule_date = obj.booking_history_id.schedule_id.date
+        timeToDatetime = datetime.datetime(schedule_date.year, schedule_date.month, schedule_date.day, start_time.hour, start_time.minute, start_time.second)
+        end_time = timeToDatetime + datetime.timedelta(0, running_time*60)
+        return f"{timeToDatetime.strftime('%Y-%m-%d %H:%M')}-{end_time.strftime('%H:%M')}"
+
+    def get_theater_headcount(self, obj):
+        theater = obj.booking_history_id.schedule_id.date_id.screen_id.__str__()
+        headcount = f"{obj.booking_history_id.schedule_id.seat_count}명"
+        return theater + ' / ' + headcount
+
+
 class MyPageSerializer(serializers.ModelSerializer):
     booking_history = serializers.SerializerMethodField('booking_history_display', help_text='최근 예매 내역')
     # booking_history = StringArrayField(source='', help_text='최근 예매 내역')
     watchedMovieNumber = serializers.SerializerMethodField('watched_movie_number_display', help_text='본 영화 개수')
+    wishMovieNumber = serializers.SerializerMethodField('wish_movie_number_display', help_text='선호 영화 개수')
+    preferTheater = serializers.SerializerMethodField('string_to_array')
+    last_login = serializers.SerializerMethodField(help_text='마지막 로그인 시간')
 
     class Meta:
-        model = User
-        fields = ('phoneNumber', 'preferTheater', 'booking_history', 'watchedMovieNumber',)
+        model = get_user_model()
+        fields = ('phoneNumber', 'preferTheater', 'booking_history', 'watchedMovieNumber', 'wishMovieNumber', 'last_login')
 
     def booking_history_display(self, obj):
         data = obj.watched_movie_users.filter(user=obj)
@@ -89,6 +227,24 @@ class MyPageSerializer(serializers.ModelSerializer):
     def watched_movie_number_display(self, obj):
         data = WatchedMovie.objects.filter(user=obj)
         return len(data)
+
+    def wish_movie_number_display(self, obj):
+        data = Movie.objects.filter(wish_user=obj)
+        return len(data)
+
+    def string_to_array(self, obj):
+        data = obj.preferTheater
+        if data:
+            list_ = eval(data)
+            return list_
+        else:
+            return None
+
+    def get_last_login(self, obj):
+        KST = timezone('Asia/Seoul')
+        last_login = obj.last_login.astimezone(KST)
+
+        return last_login.strftime('%Y-%m-%d %H:%M:%S')
 
 
 class UserStarRate(serializers.Serializer):

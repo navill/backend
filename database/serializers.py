@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from rest_framework.fields import ListField
 
-from .models import *
 from accounts.models import *
+from .models import *
 
 
 class StringArrayField(ListField):
@@ -44,6 +44,7 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
     movie_id = serializers.IntegerField(source='id', help_text='영화 고유의 id 값')  # 영화 id
     age = serializers.CharField(source='get_age_display', help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
     types = TypesArrayField(source='type', help_text='0: 디지털 / 1: 3D / 2: 4D / 3: ATMOS / 4: 자막 / 5: 더빙')
+    running_time = serializers.SerializerMethodField('running_time_display')
     selected = serializers.BooleanField(default=False, help_text='예매 모달 표시 여부에 사용되는 변수')
     is_wished = serializers.SerializerMethodField()
     avg_rate = serializers.SerializerMethodField()
@@ -51,20 +52,20 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Movie
         fields = (
-            'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'selected', 'is_wished', 'avg_rate')
+        'movie_id', 'img_url', 'release_date', 'booking_rate', 'title', 'age', 'types', 'running_time', 'selected',
+        'is_wished', 'avg_rate')
 
     def get_is_wished(self, obj):
         # check_wish = obj.filter(wish_user=req_user)
         # return check_wish
         user = self.context['request'].user
         wish_users = obj.wish_user.all()
-        print(wish_users)
         if user in wish_users:
             return True
         else:
             return False
 
-    # 평균 별점(소수점 둘째 자리까지)
+# 평균 별점(소수점 둘째 자리까지)
     def get_avg_rate(self, obj):
         users = StarRate.objects.filter(movie=obj.id)
         if not users:
@@ -73,26 +74,32 @@ class ShowMoviesSerializer(serializers.HyperlinkedModelSerializer):
         total_rate = round((total_rate / len(users)), 2)
         return total_rate
 
-    # type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
 
-    # def type_display(self, obj):
-    #     # sample: 'get_XXXX_display'
-    #     # get_type_display = str('get_type_display'.format(field_name=self.field_name))
-    #     # retrieve instance method
-    #     # method = getattr(value, 'get_type')
-    #     # finally use instance method to return result of get_XXXX_display()
-    #     list_ = obj.get_type_display().replace(', ', ',').split(',')
-    #     # list_ = value.get_type_display().replace(', ', ',').split(',')
-    #     temp_list = list()
-    #     if ('자막' or '더빙') in list_:
-    #         for i in range(0, len(list_), 2):
-    #             temp_list.append(list_[i:i + 2])
-    #         # type_result = ','.join(list[0])
-    #         # print(type_result)
-    #     else:
-    #         for i in range(0, len(list_)):
-    #             temp_list.append(list_[i:i + 1])
-    #     return temp_list
+    def running_time_display(self, obj):
+        return obj.movie_id_detail.running_time
+
+
+
+# type_ = serializers.MultipleChoiceField(choices=TYPE)  # 타입
+
+# def type_display(self, obj):
+#     # sample: 'get_XXXX_display'
+#     # get_type_display = str('get_type_display'.format(field_name=self.field_name))
+#     # retrieve instance method
+#     # method = getattr(value, 'get_type')
+#     # finally use instance method to return result of get_XXXX_display()
+#     list_ = obj.get_type_display().replace(', ', ',').split(',')
+#     # list_ = value.get_type_display().replace(', ', ',').split(',')
+#     temp_list = list()
+#     if ('자막' or '더빙') in list_:
+#         for i in range(0, len(list_), 2):
+#             temp_list.append(list_[i:i + 2])
+#         # type_result = ','.join(list[0])
+#         # print(type_result)
+#     else:
+#         for i in range(0, len(list_)):
+#             temp_list.append(list_[i:i + 1])
+#     return temp_list
 
 
 class ReservationScheduleListSerializer(serializers.ModelSerializer):
@@ -140,6 +147,57 @@ class ReservationSecondStepSerializer(serializers.ModelSerializer):
         fields = ('schedule_id', 'seat_number', 'price', 'st_count')
 
 
+class MovieDetailSerializer(serializers.ModelSerializer):
+    img_url = serializers.SerializerMethodField('img_url_display')
+    thumbnail_url = serializers.SerializerMethodField('thumbnail_url_display')
+    title = serializers.SerializerMethodField('title_display')
+    booking_rate = serializers.SerializerMethodField('booking_rate_display')
+    age = serializers.SerializerMethodField('age_display')
+    types = TypesArrayField(source='movie.type')
+    release_date = serializers.SerializerMethodField('release_date_display')
+    director = serializers.SerializerMethodField('director_display')
+    cast = serializers.SerializerMethodField('cast_display')
+    genre = serializers.SerializerMethodField('genre_display')
+    description = serializers.SerializerMethodField('description_display')
+
+    class Meta:
+        model = Movie
+        fields = (
+        'img_url', 'thumbnail_url', 'title', 'age', 'booking_rate', 'types', 'release_date', 'director', 'cast',
+        'genre', 'description')
+
+    def img_url_display(self, obj):
+        return obj.movie.img_url
+
+    def thumbnail_url_display(self, obj):
+        return obj.movie.thumbnail_url
+
+    def title_display(self, obj):
+        return obj.movie.title
+
+    def age_display(self, obj):
+        return obj.movie.get_age_display()
+
+    def booking_rate_display(self, obj):
+        return obj.movie.booking_rate
+
+    def release_date_display(self, obj):
+        return obj.movie.release_date
+
+    def genre_display(self, obj):
+        genre = f"{obj.genre} / {obj.running_time} 분"
+        return genre
+
+    def director_display(self, obj):
+        return obj.director
+
+    def cast_display(self, obj):
+        return obj.cast
+
+    def description_display(self, obj):
+        return obj.description
+
+
 class CheckWishMovieSerializer(serializers.Serializer):
     is_wished = serializers.SerializerMethodField()
 
@@ -149,7 +207,8 @@ class CheckWishMovieSerializer(serializers.Serializer):
 
     def get_is_wished(self, obj):
         user_mail = obj.user
-        movie = Movie.objects.get(id=obj.query_params['movie_id'])
+        # movie = Movie.objects.get(id=obj.query_params['movie_id'])  # method is get
+        movie = Movie.objects.get(id=obj.data['movie_id'])  # method is get
         if user_mail in movie.wish_user.all():
             movie.wish_user.remove(user_mail)
             return False
@@ -158,12 +217,43 @@ class CheckWishMovieSerializer(serializers.Serializer):
             return True
 
 
+class ShowWishMoviesInfoSerializer(serializers.Serializer):
+    img_url = serializers.SerializerMethodField()
+    age = serializers.CharField(source='get_age_display', help_text='0: 전체 관람, 1: 12세 관람가, 2: 15세 관람가, 3: 청소년 관람불가')
+    title = serializers.SerializerMethodField()
+    booking_rate = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = ('img_url', 'age', 'title', 'booking_rate')
+
+    def get_img_url(self, obj):
+        return obj.img_url
+
+    def get_title(self, obj):
+        return obj.title
+
+    def get_booking_rate(self, obj):
+        return obj.booking_rate
+
+
 class ShowRegionSerializer(serializers.ModelSerializer):
-    # region_name = serializers.CharField(source='name')
+    id = serializers.SerializerMethodField()
+    region = serializers.SerializerMethodField()
+    theater = serializers.SerializerMethodField()
+    selected = serializers.BooleanField(default=False, help_text='지역 모달 표시 여부에 사용되는 변수')
 
     class Meta:
         model = Region
-        fields = '__all__'
+        fields = ('id', 'region', 'theater', 'selected')
+
+    def get_id(self, obj):
+        return obj['index']
+
+    def get_region(self, obj):
+        return obj['item'].region.name
+
+    def get_theater(self, obj):
+        return obj['item'].cinema_name
 
 
 class Return_200(serializers.Serializer):

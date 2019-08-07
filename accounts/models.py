@@ -39,6 +39,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
+import json
 class User(AbstractUser):
     """User model."""
     # username -> email 변경 할당 부분
@@ -51,13 +52,17 @@ class User(AbstractUser):
     objects = UserManager()
 
     # custom models fielda 부분
-    preferTheater = models.CharField(verbose_name='선호 영화관', max_length=100, blank=True)  # CharField 선호 영화관 한개만
+    preferTheater = models.TextField(verbose_name='선호 영화관', blank=True)  # CharField 선호 영화관 한개만
     phoneNumber = models.CharField(verbose_name='핸드폰 번호', max_length=15, blank=True, null=True)  # CharField
     birthDate = models.DateField(verbose_name='생년월일', null=True, blank=True)  # DateField
     name = models.CharField(verbose_name='이름', max_length=30)
-    # watchedMovie = models.CharField(verbose_name='본 영화', max_length=20, blank=True)  # CharField, 불필요한 필드로 판단
     # wishMovie = models.CharField(verbose_name='보고싶어', max_length=20, blank=True)  # CharField, 불필요한 필드로 판단
 
+    def set_preferTheater(self, x):
+        self.preferTheater = json.dumps(x)
+
+    def get_preferTheater(self):
+        return json.loads(self.preferTheater)
 
 # 테이블 재설계 필요
 # -> 이유 : 현재 이 테이블은 삭제 될 가능성이 있는 스케줄 id에 상당히 의존적임
@@ -66,7 +71,7 @@ class User(AbstractUser):
 # -> 해결2 : 스케줄 id가 지워질 일이 없다고 가정하면 굳이 안고쳐도 됨.
 class BookingHistory(models.Model):
     booking_number = models.CharField(editable=False, max_length=50, primary_key=True)  # 예매 번호, 랜덤하게 생성
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users')  # 예매한 유저
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users', null=True)  # 예매한 유저
     schedule_id = models.ForeignKey(Schedule_time, on_delete=models.SET_NULL, null=True)  # 예매한 영화 스케줄
     seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
     booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간
