@@ -10,7 +10,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.models import BookingHistory, User
 from .serializers import *
 
 
@@ -72,8 +71,6 @@ from .serializers import *
 #         movie = Movie.objects.all().order_by('-booking_rate')  # 예매율 순으로 정렬됨
 #         serializer = GetReservationFirstStepSerializer(movie, many=True)
 #         return Response(serializer.data)
-
-
 
 
 @swagger_auto_schema(method='get',

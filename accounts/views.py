@@ -587,3 +587,13 @@ def check_email_view(request):
     else:
         result = True
     return Response(result)
+
+
+@api_view(['POST'])
+def canceled_view(request):
+    booking_number = request.data['booking_number']
+    user = request.user
+    booking_obj = BookingHistory.objects.get(booking_number=booking_number, user=user)
+    booking_obj.canceled = False
+    booking_obj.save()
+    return Response(booking_obj.canceled)
