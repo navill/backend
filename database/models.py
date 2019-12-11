@@ -20,8 +20,6 @@ TYPE = (
 class Region(models.Model):
     name = models.CharField(max_length=100)
 
-    # class Meta:
-
     def __str__(self):
         return self.name
 
@@ -42,8 +40,6 @@ class Screen(models.Model):
     cinema_id = models.ForeignKey(Cinema, on_delete=models.CASCADE, related_name="cinema_id")
     screen_number = models.IntegerField()
     total_seat = models.IntegerField()
-
-    # type = MultiSelectField(choices=TYPE, max_choices=4)
 
     class Meta:
         ordering = ['screen_number']
@@ -68,14 +64,11 @@ class Movie(models.Model):
     # star_user = models.ManyToManyField('accounts.User', related_name='user_rate')
     total_star_rate = models.IntegerField(default=0)
 
-    # star_rate 추가해야함
-    # sub_type = models.IntegerField(choices=SUB_TYPE, null=True)
-
     def __str__(self):
         return self.title
 
 
-class Movie_detail(models.Model):
+class MovieDetail(models.Model):
     movie = models.OneToOneField(Movie, on_delete=models.CASCADE, related_name='movie_id_detail')
     running_time = models.IntegerField()
     description = models.TextField()
@@ -87,7 +80,7 @@ class Movie_detail(models.Model):
         return f"info: {self.movie.title}"
 
 
-class Schedule_date(models.Model):
+class ScheduleDate(models.Model):
     screen_id = models.ForeignKey(
         Screen, on_delete=models.SET_NULL,
         related_name="screen_id_schedule", blank=True, null=True)
@@ -109,23 +102,19 @@ class Schedule_date(models.Model):
         return f"{self.screen_id.cinema_id.cinema_name} screen {self.screen_id.screen_number} - 상영일자: {self.date} "
 
 
-class Schedule_time(models.Model):
+class ScheduleTime(models.Model):
     movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="movie_id_schedule", null=True)
-    date_id = models.ForeignKey(Schedule_date, on_delete=models.CASCADE, related_name="date_id_schedule", null=True)
+    date_id = models.ForeignKey(ScheduleDate, on_delete=models.CASCADE, related_name="date_id_schedule", null=True)
     seat_count = models.IntegerField(editable=False, default=0)  # 예매된 좌석의 수- Screen의 total_seat와 연산되어져야 한다.
     # available_seat = models.BooleanField(default=True)  # screen_id.total_seat - seat_count =>매진 여부
     start_time = models.TimeField()  # start_time + movie.running_time = end_time
     date = models.DateField()
     # 임시로 character field로 저장되기 위해 사용됨
-    # type = models.CharField(max_length=15, null=True)
     type = MultiSelectField(choices=TYPE, max_choices=2, max_length=50, null=True)
 
     class Meta:
         ordering = ['start_time']
 
-    # def show_item_schedule_detail(self):
-    #     return self.screen_id.cinema_id.cinema_name
-    # 
     def numbering_seat_count(self, length_count_list):
         self.seat_count = length_count_list
 
@@ -148,11 +137,11 @@ class Schedule_time(models.Model):
 
 
 class Seat(models.Model):
-    schedule_time = models.OneToOneField(Schedule_time, on_delete=models.CASCADE, related_name='schedule_time_seat',
+    schedule_time = models.OneToOneField(ScheduleTime, on_delete=models.CASCADE, related_name='schedule_time_seat',
                                          primary_key=True)
-    # screen_id = models.ForeignKey(Screen, on_delete=models.CASCADE, related_name='screen_id_seat', null=True)
     seat_number = models.TextField(blank=True, default='')
 
+    # 관객이 자리를 예약할 경우(db 갱신 시) 좌석 정보와 남은 좌석 수를 예매 페이지에(schedule_time)에 반영
     def save(self, *args, **kwargs):
         booked_list = str(self.seat_number).split(',')
         if not booked_list == ['']:
@@ -170,6 +159,3 @@ class PriceInfo(models.Model):
     # }
     type = models.CharField(max_length=10, default='')
     price = models.IntegerField(default=0)
-    # field1 - name
-    # field2 - price
-    

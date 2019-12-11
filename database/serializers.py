@@ -36,7 +36,7 @@ class QuerySerializer(serializers.ModelSerializer):
     date = serializers.DateField(source='date_id.date', help_text='날짜를 입력 받습니다.')  # 날짜
 
     class Meta:
-        model = Schedule_time
+        model = ScheduleTime
         fields = ('theater', 'movie', 'date')
 
 
@@ -106,7 +106,7 @@ class ReservationScheduleListSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
 
     class Meta:
-        model = Schedule_time
+        model = ScheduleTime
         fields = (
             'schedule_id', 'theater', 'screen', 'age', 'running_time', 'date', 'start_time', 'movie', 'types',
             'st_count', 'total_seat', 'seat_number', 'img_url', 'price')
@@ -131,7 +131,6 @@ class ReservationScheduleListSerializer(serializers.ModelSerializer):
         return result
 
 
-
 class ReservationSecondStepSerializer(serializers.ModelSerializer):
     schedule_id = serializers.IntegerField(source='id',
                                            help_text='사용자가 시청할 영화 스케줄의 고유 id 값')  # 사용자가 관람할(선택한) 영화의 스케줄 id
@@ -141,7 +140,7 @@ class ReservationSecondStepSerializer(serializers.ModelSerializer):
     st_count = serializers.IntegerField(source='seat_count', help_text='예매된 좌석 수')  # 예매된 좌석 수
 
     class Meta:
-        model = Schedule_time
+        model = ScheduleTime
         fields = ('schedule_id', 'seat_number', 'price', 'st_count')
 
 
@@ -289,3 +288,12 @@ class Return_404(serializers.Serializer):
 
 class Return_error(serializers.Serializer):
     error = serializers.CharField(allow_blank=True, required=False, default='필요한 요청이 충분하지 않습니다.')
+
+
+class CinemaListSerializer(serializers.HyperlinkedModelSerializer):
+    screen = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        # view_name : views.py 에 정의된 해당 name 필드(DroneDetail.name)
+        view_name='screen-detail'
+    )

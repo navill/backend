@@ -10,10 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-import os
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import datetime
+import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -198,7 +197,8 @@ JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'config.jwt.jwt_response_payload_handler',
     'JWT_ALGORITHM': 'HS256',
     'JWT_ALLOW_REFRESH': True,  # Token Refresh 가능 여부
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),  # Token 만료시간, weeks, days, hours, minutes, seconds, milliseconds, microseconds
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    # Token 만료시간, weeks, days, hours, minutes, seconds, milliseconds, microseconds
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=3),  # Token Refresh 가능 시간
 }
 
@@ -213,6 +213,7 @@ SWAGGER_SETTINGS = {
 }
 
 import secret
+
 AWS_ACCESS_KEY_ID = secret.settings['AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = secret.settings['AWS_SECRET_ACCESS_KEY']
 AWS_REGION = secret.settings['AWS_REGION']

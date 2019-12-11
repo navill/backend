@@ -1,8 +1,10 @@
+import json
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from database.models import Schedule_time, Movie
+from database.models import ScheduleTime, Movie
 
 
 class UserManager(BaseUserManager):
@@ -39,9 +41,6 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-import json
-
-
 class User(AbstractUser):
     """User model."""
     # username -> email 변경 할당 부분
@@ -59,12 +58,13 @@ class User(AbstractUser):
     birthDate = models.DateField(verbose_name='생년월일', null=True, blank=True)  # DateField
     name = models.CharField(verbose_name='이름', max_length=30)
     mileage = models.IntegerField(default=0)
+
     # wishMovie = models.CharField(verbose_name='보고싶어', max_length=20, blank=True)  # CharField, 불필요한 필드로 판단
 
-    def set_preferTheater(self, x):
+    def set_prefer_theater(self, x):
         self.preferTheater = json.dumps(x)
 
-    def get_preferTheater(self):
+    def get_prefer_theater(self):
         return json.loads(self.preferTheater)
 
 
@@ -76,12 +76,13 @@ class User(AbstractUser):
 class BookingHistory(models.Model):
     booking_number = models.CharField(editable=False, max_length=50, primary_key=True)  # 예매 번호, 랜덤하게 생성
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='users', null=True)  # 예매한 유저
-    schedule_id = models.ForeignKey(Schedule_time, on_delete=models.SET_NULL, null=True)  # 예매한 영화 스케줄
+    schedule_id = models.ForeignKey(ScheduleTime, on_delete=models.SET_NULL, null=True)  # 예매한 영화 스케줄
     seat_number = models.CharField(max_length=200)  # 예매한 좌석 번호들
     booking_date = models.DateTimeField(editable=False, auto_now_add=True)  # 예매한 날짜, 시간
     canceled = models.BooleanField(default=False)  # 예매 취소 여부
     total_price = models.IntegerField(default=0)
-    
+
+
 # BookingHistory만 참조하는 거면 따로 테이블 생성 없이 BookingHistory 이용해서 본영화를 출력할 때 날짜 비교해서 예매날짜 지난 것만 출력하게 하면 됨
 # 하지만 예매 내역에 없는 영화를 등록할 수 있음(오프라인 예매를 했을 경우 가능)
 # --> 이 기능이 필요하다면 오프라인 예매 정보만을 등록할 수 있는 기능이 필요함

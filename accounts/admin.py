@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import User, BookingHistory, WatchedMovie
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import ugettext_lazy as _
+
+from .models import User, BookingHistory, WatchedMovie
 
 
 # 화면 필드 정하기
@@ -27,6 +28,7 @@ class UserAdmin(DjangoUserAdmin):
     search_fields = ('email', 'name', 'birthDate')
     ordering = ('email',)
 
+
 # # Register your models here.
 # username -> email 변경 전 코드
 #
@@ -44,10 +46,12 @@ class UserAdmin(DjangoUserAdmin):
 class BookingHistoryAdmin(admin.ModelAdmin):
     list_display = ('booking_number', 'user', 'schedule_id', 'seat_number', 'booking_date', 'canceled')
 
+
 admin.site.register(BookingHistory, BookingHistoryAdmin)
 
 
 class WatchedMovieAdmin(admin.ModelAdmin):
     list_display = ('user', 'booking_history_id')
+
 
 admin.site.register(WatchedMovie, WatchedMovieAdmin)

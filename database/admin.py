@@ -49,8 +49,8 @@ class Schedule_timeAdmin(admin.ModelAdmin):
     list_display = ['movie_id', 'date_id', 'seat_count', 'start_time', 'date']
 
 
-admin.site.register(Schedule_date, Schedule_dateAdmin)
-admin.site.register(Schedule_time, Schedule_timeAdmin)
+admin.site.register(ScheduleDate, Schedule_dateAdmin)
+admin.site.register(ScheduleTime, Schedule_timeAdmin)
 admin.site.register(PriceInfo)
 
 class SeatAdmin(admin.ModelAdmin):
@@ -65,7 +65,7 @@ class MovieAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Movie, MovieAdmin)
-admin.site.register(Movie_detail)
+admin.site.register(MovieDetail)
 
 class RegionAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')

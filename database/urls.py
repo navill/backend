@@ -4,12 +4,11 @@ from .views import *
 
 app_name = 'database'
 urlpatterns = [
-    path('showMovies/', showMoviesView),
-    path('reservationScheduleList/', reservationScheduleListView),
-
-    path('reservationSecond/', reservationSecondView),
-    path('movieDetail/', movie_detail_view),
-    path('checkwish/', check_wishmovies_view),
-    path('showregion/', show_region_view),
-    path('showWishMovies/', show_wish_movies_info_view)
+    path('showMovies/', show_movies),
+    path('reservationScheduleList/', reservation_schedule_list),
+    path('reservationSecond/', reservation_second),
+    path('movieDetail/', movie_detail),
+    path('checkwish/', check_wish_movies),
+    path('showregion/', show_region),
+    path('showWishMovies/', show_wish_movies_info)
 ]

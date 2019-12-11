@@ -13,72 +13,12 @@ from rest_framework.response import Response
 from .serializers import *
 
 
-# @swagger_auto_schema(method='get',
-#                      responses={200: ReservationFirstStepSerializer(many=True)},
-#                      operation_id='reservationFirstView',
-#                      operation_description="예매 첫 번째 스텝에서 영화 전체 목록 출력 때 응답되는 변수들입니다.")
-# # manual_parameters=[theater_param, movie_title_param, date_param],
-# @api_view(['GET'])
-# def reservationFirstView(request):
-#     # 극장
-#     theater_list = request.GET.get('theater', None)  # list type
-#     # 영화 타이틀
-#     movie_title = request.GET.get('movie', None)  # list type
-#     # 상영 날짜
-#     date = request.GET.get('date', None)  # -> 2019-07-06
-#
-#     # 쿼리 하나에 값을 3개를 초과해서 받지 않음.
-#     # 3개 이상 입력 받을 시 에러를 반환
-#     if (theater_list != None and theater_list.count('_') > 2) or (movie_title != None and movie_title.count('_') > 2) :
-#         serializer = Return_error('1')
-#         return Response(serializer.data)
-#
-#     # get 형식이라면~
-#     if theater_list and date:  # get_queryset에 세 가지 중 두 가지(theater, date) 있을 경우
-#         theaters = theater_list.split('_')
-#         my_filter_qs = Q()
-#         for theater in theaters:
-#             my_filter_qs = my_filter_qs | Q(date_id__screen_id__cinema_id__cinema_name=theater)
-#         movie_schedules = Schedule_time.objects.filter(my_filter_qs, date_id__date=date).order_by('date',
-#                                                                                                        'start_time')  # 날짜, 시간 순으로 정렬
-#         # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
-#
-#         # 영화를 선택했다면
-#         if movie_title:  # get_queryset에 영화가 포함되어 있을 경우(세 변수 모두 포함) -> 극장에서 상영중인 영화 리스트 출력
-#             movie_title = movie_title.split('_')
-#             my_filter_qs = Q()
-#             for movie in movie_title:
-#                 my_filter_qs = my_filter_qs | Q(movie_id__title=movie)
-#
-#             queryset = movie_schedules.filter(my_filter_qs, date_id__date=date).select_related(
-#                 'schedule_time_seat')
-#             for i in queryset:
-#                 e = queryset.select_related('schedule_time_seat').get(id=i.id)
-#                 e.seat_count = len(str(e.schedule_time_seat.seat_number).split(','))
-#                 # 아래의 함수는 사용자가 좌석을 입력했을 때 실행해야한다.
-#                 e.numbering_seat_count(e.seat_count)
-#                 e.save()
-#                 # print(e.id, e.movie_id, e.start_time, e.date_id_id, e.movie_id_id, "seat count:", e.seat_count,
-#                 #       e.schedule_time_seat.seat_number)
-#             serializer = ReservationFirstStepSerializer(queryset, many=True)
-#             return Response(serializer.data)
-#         else:
-#             serializer = ReservationFirstStepSerializer(movie_schedules, many=True)
-#             return Response(serializer.data)
-#
-#     # elif movie_title:  # GET query_set이 없을 경우 : 모든 영화 리스트 출력
-#     if not (theater_list or movie_title or date):
-#         movie = Movie.objects.all().order_by('-booking_rate')  # 예매율 순으로 정렬됨
-#         serializer = GetReservationFirstStepSerializer(movie, many=True)
-#         return Response(serializer.data)
-
-
 @swagger_auto_schema(method='get',
                      responses={200: ShowMoviesSerializer(many=True)},
                      operation_id='showMovies',
                      operation_description="예매 첫 번째 스텝에서 영화 목록 정보를 리턴합니다.")
 @api_view(['GET'])
-def showMoviesView(request):
+def show_movies(request):
     movie = Movie.objects.all().order_by('-booking_rate')  # 예매율 순으로 정렬됨
     serializer = ShowMoviesSerializer(movie, many=True, context={'request': request})
     return Response(serializer.data)
@@ -89,9 +29,9 @@ def showMoviesView(request):
                      operation_id='movieDetail',
                      operation_description="영화 포스터를 클릭하면 나오는 영화 디테일 정보입니다")
 @api_view(['GET'])
-def movie_detail_view(request):
+def movie_detail(request):
     movie_detail_id = request.GET.get('movie')  # 영화 id를 받음
-    queryset = Movie_detail.objects.get(pk=movie_detail_id)
+    queryset = MovieDetail.objects.get(pk=movie_detail_id)
     serializer = MovieDetailSerializer(queryset, context={'request': request})
 
     return Response(serializer.data)
@@ -103,8 +43,8 @@ def movie_detail_view(request):
                      operation_id='reservationScheduleList',
                      operation_description="예매 첫 번째 스텝에서 영화 스케줄 목록 정보를 리턴합니다.")
 @api_view(['GET'])
-def reservationScheduleListView(request):
-    movie_schedules = Schedule_time.objects.none()
+def reservation_schedule_list(request):
+    movie_schedules = ScheduleTime.objects.none()
     # 극장
     theaters = request.GET.getlist('theater')  # list type
     # 영화 타이틀
@@ -128,11 +68,10 @@ def reservationScheduleListView(request):
             if today == date:
                 query &= Q(start_time__gte=time)  # 현재 시간 이후의 스케줄 필터링
 
-            movie_schedules |= Schedule_time.objects.filter(
+            movie_schedules |= ScheduleTime.objects.filter(
                 query
             ).order_by('date', 'start_time')  # 날짜, 시간 순으로 정렬
 
-        # movie_schedules = Schedule_time.objects.filter(date_id__screen_id__cinema_id__cinema_name=theater, date_id__date__gte=date).order_by('string_date',                                                                                  'start_time')
         # 영화를 선택했다면
         if movie_title:  # get_queryset에 영화가 포함되어 있을 경우(세 변수 모두 포함) -> 극장에서 상영중인 영화 리스트 출력
             my_filter_qs = Q()
@@ -141,6 +80,7 @@ def reservationScheduleListView(request):
 
             queryset = movie_schedules.filter(my_filter_qs, date_id__date=date).select_related('schedule_time_seat')
             for i in queryset:
+                # schedule_time을 이용해 seat객체 reversed refer
                 e = queryset.select_related('schedule_time_seat').get(id=i.id)
                 e.seat_count = len(str(e.schedule_time_seat.seat_number).split(','))
                 # 아래의 함수는 사용자가 좌석을 입력했을 때 실행해야한다.
@@ -162,14 +102,9 @@ def reservationScheduleListView(request):
                      operation_description="예매 두 번째 스텝에서 좌석 및 선택한 영화의 정보들을 서버에 넘길 변수들입니다.", )
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
-def reservationSecondView(request):
+def reservation_second(request):
     # 사용자가 관람할(선택한) 영화의 스케줄 id
     booking_data = request.data
-    # print(booking_data)
-    # print(booking_data['schedule_id'])
-    # print(booking_data['seat_number'])
-    # print(booking_data['price'])
-    # print(booking_data['st_count'])
 
     if not booking_data['schedule_id']:
         serializer = Return_error(1)
@@ -178,12 +113,11 @@ def reservationSecondView(request):
     # db에 있는지 여부 + 기존의 st_count에 post된 좌석 추가
     # 아래의 코드는 Post.get(st_count)를 사용하지 않음 -> 기존 seat_number의 배열 수로 계산해서 처리함
     if request.method == "POST":
-        selected_schedule = Schedule_time.objects.get(
+        selected_schedule = ScheduleTime.objects.get(
             id=booking_data[
                 'schedule_id'])  # .update(seat_number=seat_number, schedule_time_seat__seat_number=seat_number)
         # 예약 되어있는 좌석 리스트
         booked_seat_numbers = selected_schedule.schedule_time_seat.seat_number
-        # print('booked_seat_numbers:', booked_seat_numbers)
         # seat_number, booked_list.split() : 클라이언트로부터 넘어온 str data -> list data로 변환
         if booked_seat_numbers:
             booked_list = booked_seat_numbers.split(',')
@@ -208,18 +142,16 @@ def reservationSecondView(request):
             # save Seat table
             selected_schedule.schedule_time_seat.save()
             seat_numbers = ','.join(booking_data['seat_number'])
-            bookingHistory(request, selected_schedule, seat_numbers, booking_data['price'])  # 예매 내역에 저장
+            booking_history(request, selected_schedule, seat_numbers, booking_data['price'])  # 예매 내역에 저장
 
             serializer = Return_200(selected_schedule)
-            # print(booked_seat_numbers)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             serializer = Return_error(selected_schedule)
             return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 
-def bookingHistory(request, selected_schedule, seat_numbers, total_price):
-    # def booking_history
+def booking_history(request, selected_schedule, seat_numbers, total_price):
     booking_number = random_booking_number()
 
     BookingHistory.objects.create(
@@ -252,9 +184,7 @@ def random_booking_number():
                      operation_id='checkWishMovie',
                      operation_description="영화를 보고싶어 목록에 추가합니다.")
 @api_view(['POST'])
-def check_wishmovies_view(request):
-    # get = 'movie_id'
-    # a = request.query_params['movie_id']
+def check_wish_movies(request):
     serializer = CheckWishMovieSerializer(request)
     return Response(serializer.data)
 
@@ -264,7 +194,7 @@ def check_wishmovies_view(request):
                      operation_id='showWishMoviesInfo',
                      operation_description="보고싶어를 누른 영화 정보를 출력합니다.")
 @api_view(['GET'])
-def show_wish_movies_info_view(request):
+def show_wish_movies_info(request):
     wishMovies = request.user.wish_movie.all()
     serializer = ShowWishMoviesInfoSerializer(wishMovies, many=True)
     return Response(serializer.data)
@@ -275,7 +205,7 @@ def show_wish_movies_info_view(request):
                      operation_id='showRegion',
                      operation_description="지역 정보를 출력합니다.")
 @api_view(['GET'])
-def show_region_view(request):  # 지역-상영관 정보를 출력하는 뷰
+def show_region(request):  # 지역-상영관 정보를 출력하는 뷰
     regions = Region.objects.all()  # 지역의 모든 정보를 가져옴.
     theaterList = list()  # 모든 상영관의 정보를 저장할 리스트.
     queryset = list()  # serializer에 넘길 인덱스와 상영관이 딕셔너리로 저장된 리스트.
@@ -293,8 +223,3 @@ def show_region_view(request):  # 지역-상영관 정보를 출력하는 뷰
 
     serializer = ShowRegionSerializer(queryset, many=True)
     return Response(serializer.data)
-
-#
-# def show_star_rate(reqeust):
-#     return Response(0)
-#
