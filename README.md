@@ -25,7 +25,7 @@ Live: [http://megabox.website](http://www.megabox.website/)
 
   - [views.create_star_rate](https://github.com/navill/backend/blob/3c6461a1bb1fdc8330ba5c9cb61552e3c5c16b92/accounts/views.py#L281): 영화에 유저가 입력한 평점 반영
 
-  **영화 정보 ** 
+  **영화 정보**
 
   - [views.movie_detail](https://github.com/navill/backend/blob/3c6461a1bb1fdc8330ba5c9cb61552e3c5c16b92/database/views.py#L32): 영화 상세 정보를 제공
 
