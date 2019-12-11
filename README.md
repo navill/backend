@@ -29,7 +29,7 @@ Live: [http://megabox.website](http://www.megabox.website/)
 
   - [views.movie_detail](https://github.com/navill/backend/blob/3c6461a1bb1fdc8330ba5c9cb61552e3c5c16b92/database/views.py#L32): 영화 상세 정보를 제공
 
-  데이터베이스 모델링
+**데이터베이스 모델링**
 
 - 사용자 DB 모델링
 
