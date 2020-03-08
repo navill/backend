@@ -12,7 +12,9 @@
 - [데이터베이스 모델링](#데이터베이스-모델링)
 - [문서화 - yasg](#yasg)
 
-### 사용 기술
+
+
+## 사용 기술
 
 **Language & Framework**
 
@@ -35,7 +37,7 @@
 
 
 
-### 요약
+## 요약
 
 
 - 영화 예매 사이트인 Megabox 사이트의 기능을 구현한 프로젝트입니다.
@@ -48,9 +50,9 @@
 
   
 
-### 주요 기능
+## 주요 기능
 
-**JWT를 이용한 인증**
+### JWT를 이용한 인증
 
 **[주요코드]**
 
@@ -63,7 +65,7 @@
 
 
 
-**영화 스케줄 & 예매**
+### 영화 스케줄 & 예매
 
 **[주요코드]**
 
@@ -75,13 +77,15 @@
 
 - 지역 및 영화를 선택할 경우, 해당 시간과 날짜에 등록된 극장 및 영화 리스트 출력
 
+
+
 ![ticketing](/README_image/ticketing.png)
 
 - 좌성 지정 및 결제 기능
 
 
 
-**영화 상세 정보**
+### 영화 상세 정보
 
 **[주요코드]**
 
@@ -91,7 +95,7 @@
 
 
 
-**이외 기능**
+### 이외 기능
 
 **[주요 코드]**
 
@@ -100,11 +104,11 @@
 
 - [views.create_star_rate](https://github.com/navill/backend/blob/3c6461a1bb1fdc8330ba5c9cb61552e3c5c16b92/accounts/views.py#L281): 영화에 유저가 입력한 평점 반영
 
-* [create_db_data](): 테스트에 필요한 데이터를 자동으로 생성
+* [create_db_data](https://github.com/navill/backend/blob/master/create_db_data.py): 테스트에 필요한 데이터를 자동으로 생성
 
 
 
-### 데이터베이스 모델링
+## 데이터베이스 모델링
 
 - 사용자 DB 모델링
 
@@ -116,7 +120,7 @@
 
 
 
-### yasg
+## yasg - 자동 문서화를 위한 라이브러리
 
 ![account_megabox](/README_image/yasg.png)
 
