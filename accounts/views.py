@@ -16,7 +16,6 @@ from .serializers import *
 
 class CustomObtainJSONWebToken(JSONWebTokenAPIView):
     serializer_class = JSONWebTokenSerializer
-
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -279,8 +278,8 @@ def show_watched_movies_info(request):
                      operation_description="유저 평점을 생성합니다.")
 @api_view(['GET'])
 def create_star_rate(request):
-    user_rate = int(request.GET.get('star_rate'))
-    movie_id = request.GET.get('movie_id')
+    user_rate = int(request.data['star_rate'])
+    movie_id = request.data['movie_id']
     movie = Movie.objects.get(id=movie_id)
     total_rate = movie.total_star_rate
     star_obj = StarRate.objects.filter(user=request.user, movie=movie_id)

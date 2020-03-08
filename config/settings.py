@@ -192,6 +192,8 @@ REST_FRAMEWORK = {
     ),
 }
 
+REST_USE_JWT = True
+
 JWT_AUTH = {
     'JWT_SECRET_KEY': SECRET_KEY,
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'config.jwt.jwt_response_payload_handler',

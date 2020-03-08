@@ -31,7 +31,8 @@ def show_movies(request):
 @api_view(['GET'])
 def movie_detail(request):
     movie_detail_id = request.GET.get('movie')  # 영화 id를 받음
-    queryset = MovieDetail.objects.get(pk=movie_detail_id)
+    print(movie_detail_id)
+    queryset = MovieDetail.objects.get(id=movie_detail_id)
     serializer = MovieDetailSerializer(queryset, context={'request': request})
 
     return Response(serializer.data)
